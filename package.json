@@ -1,0 +1,41 @@
+{
+  "name": "jr-toolkit",
+  "version": "1.0.0",
+  "description": "Spec-Driven Development toolkit for Claude.ai — transform rough requirements into professional specs, implement them, and verify coverage.",
+  "keywords": [
+    "claude",
+    "anthropic",
+    "spec-driven-development",
+    "sdd",
+    "ai",
+    "toolkit",
+    "specs",
+    "claude-skills",
+    "developer-tools"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_USERNAME/jr-toolkit.git"
+  },
+  "homepage": "https://github.com/YOUR_USERNAME/jr-toolkit#readme",
+  "bugs": {
+    "url": "https://github.com/YOUR_USERNAME/jr-toolkit/issues"
+  },
+  "bin": {
+    "jr-toolkit": "./bin/jr-toolkit.js"
+  },
+  "files": [
+    "bin/",
+    "skills/",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "scripts": {
+    "test": "echo \"No tests yet\" && exit 0"
+  }
+}
