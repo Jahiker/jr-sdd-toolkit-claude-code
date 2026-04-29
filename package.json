@@ -1,6 +1,6 @@
 {
   "name": "@jahiker/claude-toolkit",
-  "version": "1.0.1",
+  "version": "1.3.0",
   "description": "Spec-Driven Development toolkit for Claude.ai — transform rough requirements into professional specs, implement them, and verify coverage.",
   "keywords": [
     "claude",
