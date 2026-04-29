@@ -1,259 +1,232 @@
 ---
 name: jr-build-spec
 description: >
-  Úsalo siempre que el usuario ejecute el comando /jr-build-spec o cuando reciba un archivo .md con una especificación, historia de usuario, o requerimiento poco pulido que necesite ser analizado, refinado y documentado como un spec profesional. Se activa con frases como "construir spec", "refinar requerimiento", "analizar historia de usuario", "crear especificación técnica", o cuando se mencione /jr-build-spec. Requiere un archivo .md como input; si no se provee, debe solicitarlo. El skill analiza el contexto del proyecto, detecta solapamientos con specs existentes, categoriza preguntas para cliente y dev, advierte si el scope es demasiado grande, espera respuestas iterativas y produce un spec profesional estilo arquitecto Silicon Valley en el directorio specs/.
+  Use this skill whenever the user runs /jr-build-spec or provides a .md file with a rough specification, user story, or unpolished requirement that needs to be analyzed, refined, and documented as a professional spec. Triggered by phrases like "build spec", "refine requirement", "analyze user story", "create technical specification", or when /jr-build-spec is mentioned. Requires a .md file as input; if not provided, must request it. The skill analyzes the project context, detects overlaps with existing specs, categorizes questions for client and dev, warns if scope is too large, accepts iterative answers, and produces a professional spec in the specs/ directory.
+
+language_behavior: >
+  All internal instructions are in English for consistency.
+  Always respond to the user in the same language they used to invoke this skill.
+  Read PROJECT.md at the start — write all generated files (specs) in the "Docs language" defined there.
+  If not set, use the user's conversation language for generated files.
 ---
 
 # jr-build-spec
 
-Skill para transformar requerimientos crudos o historias de usuario poco pulidas en especificaciones técnicas profesionales, listas para ser trabajadas por un equipo de desarrollo.
+Skill to transform rough requirements or unpolished user stories into professional technical specifications, ready to be worked on by a development team.
 
 ---
 
-## Paso 0 — Validar input
+## Step 0 — Validate input
 
-Si el usuario ejecutó `/jr-build-spec` **sin adjuntar un archivo `.md`**, responde:
+If the user ran `/jr-build-spec` **without attaching a `.md` file**, respond in their language:
+> [Ask them to share the requirement file: `/jr-build-spec @path/to/file.md`]
 
-> "Para ejecutar `/jr-build-spec` necesito el archivo `.md` con el requerimiento o historia de usuario. Por favor compártelo así: `/jr-build-spec @ruta/al/archivo.md`"
-
-No continúes hasta tener el archivo.
-
----
-
-## Paso 1 — Leer, entender y escanear contexto
-
-1. Lee el archivo `.md` recibido completamente.
-2. Escanea el proyecto para entender contexto:
-   - Detecta si existe `specs/` (si no, se creará al final)
-   - Busca archivos de configuración (`package.json`, `composer.json`, `pyproject.toml`, `Makefile`, `README.md`, etc.) para identificar stack y arquitectura
-   - Convenciones del proyecto: estructura de carpetas, naming, patrones existentes
-3. Formula tu análisis inicial: ¿Qué se está pidiendo? ¿Qué está claro? ¿Qué es ambiguo?
+Also read `PROJECT.md` at the start to understand the project context and get the Docs language.
 
 ---
 
-## Paso 2 — Detección de solapamientos con specs existentes
+## Step 1 — Read, understand, and scan context
 
-Si existe el directorio `specs/`, lee **todos los specs existentes** (al menos sus secciones de Resumen Ejecutivo y Requerimientos Funcionales).
-
-Luego evalúa:
-
-- ¿Hay specs que cubran funcionalidad **igual o muy similar** al nuevo requerimiento?
-- ¿Hay specs que el nuevo requerimiento **extiende o modifica**?
-- ¿Hay specs que el nuevo requerimiento **podría romper o contradecir**?
-- ¿Hay specs que deberían ejecutarse **antes** de este (dependencias)?
-
-Si encuentras algo relevante, repórtalo **antes** de hacer cualquier pregunta:
-
-```
-## 🔍 Specs relacionados encontrados
-
-| Spec | Relación | Impacto |
-|---|---|---|
-| `specs/autenticacion.md` | Este spec extiende el flujo de login | Revisar sección 7 antes de continuar |
-| `specs/perfil-usuario.md` | Solapamiento en manejo de avatar | Podría duplicar lógica |
-
-> ⚠️ Considera si este nuevo spec debería ser una iteración de uno existente en lugar de uno nuevo.
-> ¿Quieres continuar como spec nuevo o prefieres que lo integremos a uno existente?
-```
-
-Espera decisión del usuario antes de continuar.
+1. Read the received `.md` file completely.
+2. Read `PROJECT.md` for stack, architecture, and conventions.
+3. Scan the project to understand context:
+   - Does `specs/` exist?
+   - Config files for stack identification
+   - Existing specs for conventions
+4. Formulate initial analysis: What is being asked? What is clear? What is ambiguous?
 
 ---
 
-## Paso 3 — Evaluación de scope
+## Step 2 — Detect overlaps with existing specs
 
-Antes de formular preguntas, evalúa la magnitud del requerimiento:
+If `specs/` exists, read all existing specs (at least their Executive Summary and Functional Requirements sections).
 
-**Señales de scope excesivo:**
-- Menciona más de 3 módulos distintos del sistema
-- Involucra cambios en base de datos + API + UI + integraciones externas simultáneamente
-- El requerimiento tiene múltiples "fases" o "etapas" implícitas
-- Requeriría más de ~5 días de trabajo para un dev solo
+Evaluate:
+- Are there specs covering **the same or very similar** functionality?
+- Are there specs this requirement **extends or modifies**?
+- Are there specs this requirement **could break or contradict**?
+- Are there specs that should run **before** this one (dependencies)?
 
-Si detectas scope excesivo, advierte:
+If anything relevant is found, report it to the user in their language before proceeding:
 
 ```
-## ⚠️ Scope Detection
-
-Este requerimiento parece abarcar múltiples features independientes:
-- [Feature A detectado]
-- [Feature B detectado]
-- [Feature C detectado]
-
-Recomiendo dividirlo en specs separados ejecutables incrementalmente.
-¿Quieres que lo divida ahora, o prefieres continuar como un spec único?
+[Table of related specs found with their relationship and impact]
+[Ask: continue as a new spec or integrate into an existing one?]
 ```
 
-Respeta la decisión del usuario. Si elige continuar como uno solo, documenta la advertencia en el spec final.
+Wait for user decision before continuing.
 
 ---
 
-## Paso 4 — Categorizar y formular preguntas
+## Step 3 — Scope evaluation
 
-Con base en el análisis, genera **dos listas de preguntas**:
+Before formulating questions, evaluate the magnitude of the requirement:
 
-#### 🙋 Preguntas para el Cliente / Product Owner
-Dudas de negocio, alcance, prioridades, comportamiento esperado, usuarios finales, restricciones comerciales.
+**Signs of excessive scope:**
+- Mentions more than 3 different system modules
+- Involves DB changes + API + UI + external integrations simultaneously
+- The requirement has multiple implicit "phases" or "stages"
+- Would require more than ~5 days of work for one dev
 
-```
-**C1.** [Pregunta concreta enfocada en negocio]
-**C2.** [Pregunta concreta enfocada en negocio]
-```
-
-#### 🛠️ Preguntas para el Dev / Arquitecto
-Dudas técnicas: integraciones, dependencias, limitaciones del sistema, decisiones de diseño, compatibilidad.
-
-```
-**D1.** [Pregunta técnica concreta]
-**D2.** [Pregunta técnica concreta]
-```
-
-Indica al final:
-> "No es necesario responder todas a la vez. Responde las que puedas ahora y continuamos desde ahí."
+If excessive scope is detected, warn the user in their language and ask whether to split it or continue as a single spec.
 
 ---
 
-## Paso 5 — Iteración de preguntas y respuestas
+## Step 4 — Categorize and formulate questions
 
-- El usuario puede responder parcialmente.
-- Marca internamente las preguntas resueltas.
-- Si quedan preguntas sin responder pero hay suficiente información, pregunta:
-  > "¿Quieres que avance con la información actual y dejemos las pendientes como `[PENDING]` en el spec?"
-- Acepta la decisión y continúa.
+Based on the analysis, generate **two question lists**. Communicate in the user's language:
+
+#### 🙋 Questions for the Client / Product Owner
+Business doubts: scope, priorities, expected behavior, end users, commercial constraints.
+
+```
+**C1.** [Concrete business-focused question]
+**C2.** [Concrete business-focused question]
+```
+
+#### 🛠️ Questions for the Dev / Architect
+Technical doubts: integrations, dependencies, system limitations, design decisions.
+
+```
+**D1.** [Concrete technical question]
+**D2.** [Concrete technical question]
+```
+
+Indicate that not all questions need to be answered at once.
 
 ---
 
-## Paso 6 — Construir el Spec
+## Step 5 — Iteration
 
-Genera el spec con esta estructura:
+- Accept partial answers.
+- Mark resolved questions internally.
+- If enough information exists to build the spec, ask whether to proceed with unresolved items as `[PENDING]`.
+
+---
+
+## Step 6 — Build the spec
+
+Write the spec in the **Docs language** from PROJECT.md.
 
 ```markdown
-# [Nombre del Feature / Requerimiento]
+# [Feature / Requirement Name]
 
 **Status:** Draft
-**Versión:** 1.0
-**Fecha:** YYYY-MM-DD
-**Autor:** jr-build-spec
-**Specs relacionados:** [lista de specs relacionados detectados en Paso 2, o "Ninguno"]
-**Advertencia de scope:** [si aplica, o eliminar esta línea]
+**Version:** 1.0
+**Date:** YYYY-MM-DD
+**Author:** jr-build-spec
+**Related specs:** [related specs detected in Step 2, or "None"]
+**Scope warning:** [if applicable, or remove this line]
 
 ---
 
-## 1. Resumen Ejecutivo
-2-3 oraciones: qué es, por qué importa, cuál es el resultado esperado.
+## 1. Executive Summary
+2-3 sentences: what it is, why it matters, what the expected outcome is.
 
-## 2. Contexto y Motivación
-- Problema que resuelve
-- Usuario(s) afectado(s)
-- Impacto en el negocio
+## 2. Context and Motivation
+- Problem it solves
+- Affected user(s)
+- Business impact
 
-## 3. Objetivos
-- [ ] Objetivo 1
-- [ ] Objetivo 2
+## 3. Goals
+- [ ] Goal 1
+- [ ] Goal 2
 
-## 4. Fuera de Scope
-- Lo que explícitamente NO incluye este spec
+## 4. Out of Scope
+- What this spec explicitly does NOT include
 
-## 5. Requerimientos Funcionales
+## 5. Functional Requirements
 
-### RF-01: [Nombre]
-**Descripción:** ...
-**Criterios de Aceptación:**
-- [ ] CA-01: ...
-- [ ] CA-02: ...
+### FR-01: [Name]
+**Description:** ...
+**Acceptance Criteria:**
+- [ ] AC-01: ...
+- [ ] AC-02: ...
 
-### RF-02: [Nombre]
+### FR-02: [Name]
 ...
 
-## 6. Requerimientos No Funcionales
+## 6. Non-Functional Requirements
 - **Performance:** ...
-- **Seguridad:** ...
-- **Escalabilidad:** ...
-- **Compatibilidad:** ...
+- **Security:** ...
+- **Scalability:** ...
+- **Compatibility:** ...
 
-## 7. Diseño Técnico
+## 7. Technical Design
 
-### Arquitectura
-[Descripción de cómo encaja en el sistema actual]
+### Architecture
+[How it fits into the current system]
 
-### Componentes Involucrados
-| Componente | Rol | Cambios requeridos |
+### Involved Components
+| Component | Role | Required changes |
 |---|---|---|
 | ... | ... | ... |
 
-### Flujo de Datos
-[Descripción del flujo principal o pseudocódigo si aplica]
+### Data Flow
+[Main flow description or pseudocode if applicable]
 
-### Consideraciones de Base de Datos
-[Cambios en esquema, nuevas tablas, índices, etc. Si no aplica: "Sin cambios en BD"]
+### Database Considerations
+[Schema changes, new tables, indexes. If not applicable: "No DB changes"]
 
-### APIs / Integraciones
-[Endpoints nuevos o modificados, contratos, payloads. Si no aplica: "Sin cambios en API"]
+### APIs / Integrations
+[New or modified endpoints, contracts, payloads. If not applicable: "No API changes"]
 
-## 8. Casos Borde y Manejo de Errores
-- **Caso:** [descripción] → **Comportamiento esperado:** [respuesta]
+## 8. Edge Cases and Error Handling
+- **Case:** [description] → **Expected behavior:** [response]
 
-## 9. Dependencias
-- **Specs que deben ejecutarse antes:** [lista o "Ninguno"]
-- **Internas:** [otros módulos, servicios]
-- **Externas:** [librerías, APIs de terceros]
-- **Bloqueadores:** [lo que debe estar listo antes de empezar]
+## 9. Dependencies
+- **Specs that must run first:** [list or "None"]
+- **Internal:** [other modules, services]
+- **External:** [libraries, third-party APIs]
+- **Blockers:** [what must be ready before starting]
 
-## 10. Preguntas Pendientes
-> Deben resolverse antes de comenzar desarrollo o ejecución del spec.
+## 10. Pending Questions
+> Must be resolved before starting development.
 
-- **[PENDING-C1]:** [pregunta del cliente sin resolver]
-- **[PENDING-D1]:** [pregunta técnica sin resolver]
+- **[PENDING-C1]:** [unresolved client question]
+- **[PENDING-D1]:** [unresolved technical question]
 
-*(Eliminar esta sección si no hay pendientes)*
+*(Remove this section if no pending items)*
 
-## 11. Notas Adicionales
-[Contexto extra, referencias, links relevantes]
+## 11. Additional Notes
+[Extra context, references, relevant links]
 
 ---
-## Historial
+## History
 
-| Versión | Fecha | Acción | Notas |
+| Version | Date | Action | Notes |
 |---|---|---|---|
-| 1.0 | YYYY-MM-DD | Creado | Generado por jr-build-spec |
+| 1.0 | YYYY-MM-DD | Created | Generated by jr-build-spec |
 ```
 
-**Reglas de escritura:**
-- Lenguaje técnico preciso, sin redundancias.
-- Lo no definido va como `[TBD]` o `[PENDING]`.
-- Cada RF debe tener al menos un CA verificable y testeable.
-- El spec debe poder ser leído por un dev nuevo sin contexto previo.
-- La sección "Specs relacionados" del encabezado siempre se completa (aunque sea "Ninguno").
+**Writing principles:**
+- Precise technical language, no redundancies.
+- Undefined items go as `[TBD]` or `[PENDING]`.
+- Each FR must have at least one verifiable and testable AC.
+- The spec must be readable by a new dev without prior context.
 
 ---
 
-## Paso 7 — Guardar el Spec
+## Step 7 — Save the spec
 
-> ⚠️ **Este paso es obligatorio y no negociable. El skill NO termina hasta que el archivo exista físicamente en disco. No preguntes, no pidas confirmación — ejecuta directamente.**
+> ⚠️ **Mandatory and non-negotiable. The skill does NOT finish until the file exists on disk. Execute without asking — do not request confirmation.**
 
-1. **Crea el directorio `specs/`** en la raíz del proyecto si no existe. Hazlo sin preguntar.
-2. **Determina el nombre del archivo:** `specs/[slug-del-feature].md`
-   - kebab-case, minúsculas, sin tildes ni caracteres especiales.
-   - Ejemplo: `specs/sistema-de-notificaciones-push.md`
-3. **Escribe el archivo** con todo el contenido del spec generado. Si el archivo ya existe, sobreescríbelo sin pedir confirmación.
-4. **Verifica** que el archivo fue creado correctamente antes de continuar.
-5. **Confirma al usuario:**
-   > "✅ Spec guardado en `specs/[nombre].md`
-   >
-   > Próximos pasos:
-   > - Revisa y ajusta el spec si algo no quedó bien
-   > - Cuando esté listo, ejecuta: `/jr-exe-spec @specs/[nombre].md`
-   > - Al finalizar la implementación: `/jr-verify-spec @specs/[nombre].md`"
+1. **Create `specs/`** in the project root if it doesn't exist.
+2. **Determine the filename:** `specs/[feature-slug].md`
+   - kebab-case, lowercase, no accents or special characters.
+3. **Write the file.** If it already exists, overwrite without asking.
+4. **Verify** the file was created correctly.
+5. **Confirm to the user** in their conversation language, indicating the next steps: `/jr-exe-spec` and `/jr-verify-spec`.
 
-**Si por alguna razón no puedes escribir el archivo** (permisos, ruta inválida), repórtalo con el error exacto y muestra el contenido del spec en el chat para que el usuario pueda guardarlo manualmente.
+**If the file cannot be written** (permissions, invalid path), report the exact error and show the spec content in chat so the user can save it manually.
 
 ---
 
-## Principios de Calidad
+## Quality principles
 
-- **Claridad sobre brevedad**: mejor largo y completo que corto y ambiguo.
-- **Verificabilidad**: cada requerimiento debe poder ser testeado.
-- **Trazabilidad**: conecta decisiones con su motivación, y specs entre sí.
-- **Honestidad**: lo que no está claro se marca como pendiente, no se inventa.
-- **Scope consciente**: un spec bien acotado es mejor que uno que intenta hacer todo.
-- **Contexto-aware**: el spec refleja las convenciones y stack del proyecto.
+- **Clarity over brevity**: better long and complete than short and ambiguous.
+- **Verifiability**: every requirement must be testable.
+- **Traceability**: connect decisions with their motivation, and specs with each other.
+- **Honesty**: unclear items are marked as pending, never invented.
+- **Scope-conscious**: a well-scoped spec is better than one that tries to do everything.
+- **Context-aware**: the spec reflects the project's stack and conventions.

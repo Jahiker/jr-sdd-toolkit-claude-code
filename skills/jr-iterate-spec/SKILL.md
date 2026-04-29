@@ -1,195 +1,149 @@
 ---
 name: jr-iterate-spec
 description: >
-  Úsalo siempre que el usuario ejecute el comando /jr-iterate-spec o quiera iterar, extender, modificar o mejorar un spec que ya existe (en cualquier status: Draft, Implemented o Verified). Se activa con frases como "iterar el spec", "agregar al spec", "modificar el spec", "el spec necesita un cambio", "nueva versión del spec", "extender el feature", o cuando se mencione /jr-iterate-spec. Recibe el spec existente como base y el nuevo requerimiento o cambio solicitado, evalúa el impacto sobre RFs y archivos existentes, versiona el spec semánticamente (patch para mejoras pequeñas, minor para cambios estructurales) y produce el spec iterado listo para ejecutar con jr-exe-spec. NO crea un spec nuevo — versiona el existente.
+  Use this skill whenever the user runs /jr-iterate-spec or wants to iterate, extend, modify, or improve a spec that already exists (in any status: Draft, Implemented, or Verified). Triggered by phrases like "iterate the spec", "add to the spec", "modify the spec", "the spec needs a change", "new version of the spec", "extend the feature", or when /jr-iterate-spec is mentioned. Receives the existing spec as a base and the new requirement or change requested, evaluates impact on existing FRs and files, versions the spec semantically (patch for small improvements, minor for structural changes) and produces the iterated spec ready to execute with jr-exe-spec. Does NOT create a new spec — it versions the existing one.
+
+language_behavior: >
+  All internal instructions are in English for consistency.
+  Always respond to the user in the same language they used to invoke this skill.
+  Read PROJECT.md at the start — write all generated files in the "Docs language" defined there.
+  If not set, use the user's conversation language for generated files.
+  Preserve the language of the existing spec — do not change it during iteration.
 ---
 
 # jr-iterate-spec
 
-Skill para iterar sobre specs existentes. Recibe un spec base ya documentado (en cualquier status) y un nuevo requerimiento o cambio, evalúa el impacto, versiona semánticamente y produce el spec actualizado con un delta claro de qué cambia respecto a la versión anterior.
+Skill to iterate on existing specs. Receives a documented base spec (in any status) and a new requirement or change, evaluates impact, versions semantically, and produces the updated spec with a clear delta of what changes from the previous version.
 
 ---
 
-## Paso 0 — Validar input
+## Step 0 — Validate input
 
-El usuario debe proveer **dos cosas**:
-1. El spec existente: `@specs/nombre-del-spec.md`
-2. El nuevo requerimiento o cambio (puede ser texto en el chat o un archivo `.md`)
+The user must provide **two things**:
+1. The existing spec: `@specs/feature-name.md`
+2. The new requirement or change (can be text in chat or a `.md` file)
 
-Si falta alguno, solicítalo:
+If either is missing, request both in the user's language.
 
-> "Para iterar necesito dos cosas:
-> 1. El spec existente: `/jr-iterate-spec @specs/nombre.md`
-> 2. El cambio o nuevo requerimiento que quieres incorporar (descríbelo o comparte un archivo)"
-
-No continúes hasta tener ambos.
+Also read `PROJECT.md` for context and Docs language.
 
 ---
 
-## Paso 1 — Leer el spec base
+## Step 1 — Read the base spec
 
-1. Lee el spec existente completo.
-2. Registra internamente:
-   - Versión actual (ej: `1.0`, `1.1`, `2.0`)
-   - Status actual (`Draft`, `Implemented`, `Verified`)
-   - Todos los RFs existentes con sus CAs
-   - Sección `Archivos Afectados` si existe
-   - Historial de versiones
-3. Si el status es `Implemented` o `Verified`, toma nota — el delta deberá ser muy consciente de no romper lo ya implementado.
+1. Read the existing spec completely.
+2. Record internally:
+   - Current version (e.g.: `1.0`, `1.1`, `2.0`)
+   - Current status (`Draft`, `Implemented`, `Verified`)
+   - All existing FRs with their ACs
+   - `Affected Files` section if it exists
+   - Version history
+3. If status is `Implemented` or `Verified`, note it — the delta must be careful not to break what's already implemented.
 
 ---
 
-## Paso 2 — Analizar el cambio solicitado
+## Step 2 — Analyze the requested change
 
-Lee el nuevo requerimiento y determina:
+Read the new requirement and determine:
 
-**Tipo de cambio** (esto define el versionado):
+**Change type** (this defines versioning):
 
-| Tipo | Ejemplos | Versión |
+| Type | Examples | Version |
 |---|---|---|
-| **Patch** | Agregar un CA a un RF existente, corregir redacción, aclarar un edge case, agregar un RNF, pequeña extensión de comportamiento | `1.0 → 1.1` |
-| **Minor** | Agregar uno o más RFs nuevos, modificar el flujo principal, cambiar diseño técnico significativamente, agregar integraciones nuevas, cambiar el modelo de datos | `1.0 → 2.0` |
+| **Patch** | Add AC to existing FR, clarify edge case, add NFR, small behavior extension | `1.0 → 1.1` |
+| **Minor** | Add one or more new FRs, modify main flow, significant technical design change, new integrations, data model changes | `1.0 → 2.0` |
 
-Anuncia tu evaluación antes de continuar:
+Announce the evaluation to the user in their language:
 
 ```
-## 📊 Análisis del cambio
-
-**Tipo detectado:** Patch / Minor
-**Versión actual:** X.X → **Nueva versión:** X.X
-
-**Impacto:**
-- RFs que se modifican: [lista o "Ninguno"]
-- RFs que se agregan: [lista o "Ninguno"]
-- RFs que se eliminan: [lista o "Ninguno"]
-- Archivos ya implementados que se verían afectados: [lista o "Desconocido si no hay sección Archivos Afectados"]
-
-¿Confirmas que el tipo de cambio es correcto, o quieres ajustarlo?
+[Type: Patch / Minor]
+[Current version → New version]
+[FRs modified / added / removed]
+[Already implemented files that would be affected]
+[Ask: is the change type correct?]
 ```
 
-Espera confirmación antes de continuar.
+Wait for confirmation before continuing.
 
 ---
 
-## Paso 3 — Detección de conflictos
+## Step 3 — Conflict detection
 
-Antes de construir el spec iterado, evalúa:
+Before building the iterated spec, evaluate:
 
-- ¿El cambio contradice algún RF existente?
-- ¿El cambio modifica comportamiento ya implementado de forma que podría romperlo?
-- ¿El cambio tiene dependencias con otros specs que no están implementados?
-- ¿El cambio está fuera del scope original del spec? (si es así, ¿no debería ser un spec nuevo?)
+- Does the change contradict any existing FR?
+- Does the change modify already implemented behavior in a way that could break it?
+- Does the change have dependencies on other specs that aren't implemented?
+- Is the change so large it should be a new spec instead?
 
-Si detectas conflictos o riesgos, repórtalos:
-
-```
-## ⚠️ Conflictos detectados
-
-- **RF-02 CA-03** define que X, pero el nuevo cambio define lo contrario. ¿Cuál prevalece?
-- El cambio modifica `src/services/feature.ts` que ya está implementado — riesgo de regresión.
-
-¿Cómo quieres resolver esto antes de continuar?
-```
-
-Si el cambio es tan grande que claramente debería ser un spec separado, sugiérelo:
-> "Este cambio introduce un dominio completamente nuevo. ¿No sería mejor un spec separado que extienda este como dependencia?"
-
-Respeta la decisión del usuario.
+If conflicts or risks are detected, report them in the user's language before continuing.
 
 ---
 
-## Paso 4 — Formular preguntas (solo si hay ambigüedades)
+## Step 4 — Formulate questions (only if ambiguities exist)
 
-Si el nuevo requerimiento tiene ambigüedades que impiden escribir CAs verificables, formula preguntas categorizadas igual que `jr-build-spec`:
-
-**🙋 Preguntas para el Cliente:**
-```
-**C1.** [Pregunta de negocio]
-```
-
-**🛠️ Preguntas para el Dev:**
-```
-**D1.** [Pregunta técnica]
-```
-
-Si el cambio está suficientemente claro, omite este paso y avanza directamente.
+If the new requirement has ambiguities that prevent writing verifiable ACs, formulate categorized questions (client and dev) in the user's language, same as `jr-build-spec`.
 
 ---
 
-## Paso 5 — Construir el spec iterado
+## Step 5 — Build the iterated spec
 
-Toma el spec base y aplica los cambios. El spec resultante debe ser **el spec completo** (no solo el delta), con estas modificaciones:
+Take the base spec and apply the changes. The resulting spec must be the **complete spec** (not just the delta), written in the original spec's language, with these modifications:
 
-**En el encabezado:**
+**In the header:**
 ```markdown
-**Versión:** [nueva versión]
-**Fecha:** YYYY-MM-DD
+**Version:** [new version]
+**Date:** YYYY-MM-DD
 **Status:** Draft
 ```
-> Si el spec estaba `Implemented` o `Verified`, el status vuelve a `Draft` porque hay cambios pendientes de ejecutar.
+> If the spec was `Implemented` or `Verified`, status returns to `Draft` because there are pending changes to execute.
 
-**En los RFs:**
-- RFs sin cambios: se mantienen idénticos, sin marcas adicionales.
-- RFs modificados: agregar al final del RF una nota `> 🔄 Modificado en v[X.X]: [descripción del cambio en una línea]`
-- RFs nuevos: agregar con el siguiente número disponible (RF-03, RF-04...) con nota `> ✨ Nuevo en v[X.X]`
-- RFs eliminados: si aplica, moverlos a la sección **Fuera de Scope** con nota `> ~~RF-XX eliminado en v[X.X]: [motivo]~~`
+**In FRs:**
+- Unchanged FRs: kept identical.
+- Modified FRs: add at the end of the FR: `> 🔄 Modified in v[X.X]: [one-line description of the change]`
+- New FRs: add with next available number, with note: `> ✨ New in v[X.X]`
+- Removed FRs: move to **Out of Scope** with note: `> ~~FR-XX removed in v[X.X]: [reason]~~`
 
-**En Diseño Técnico:**
-Actualizar solo las subsecciones afectadas. Agregar nota al inicio de cada subsección modificada:
-`> 🔄 Actualizado en v[X.X]`
+**In Technical Design:**
+Update only affected subsections. Add note at start of each modified subsection:
+`> 🔄 Updated in v[X.X]`
 
-**En Archivos Afectados** (si existe):
-Agregar los nuevos archivos que el delta introducirá, marcados como `[PENDIENTE]` hasta que se ejecute.
-
-**Agregar sección Delta** (justo antes del Historial):
+**Add Delta section** (just before History):
 
 ```markdown
-## Delta v[X.X] — Resumen de cambios
+## Delta v[X.X] — Summary of changes
 
-### Qué cambia respecto a v[X anterior]
-- [Cambio 1 en una línea]
-- [Cambio 2 en una línea]
+### What changes from v[previous version]
+- [Change 1 in one line]
+- [Change 2 in one line]
 
-### Qué NO cambia
-- [Lo que permanece igual y es relevante aclararlo]
+### What does NOT change
+- [What stays the same and is relevant to clarify]
 
-### Riesgo de regresión
-- [Archivos ya implementados que podrían verse afectados, o "Bajo — sin impacto en código existente"]
+### Regression risk
+- [Already implemented files that could be affected, or "Low — no impact on existing code"]
 ```
 
-**En Historial:**
+**In History:**
 ```markdown
-| [nueva versión] | YYYY-MM-DD | Iterado | jr-iterate-spec — [descripción del cambio en una línea] |
+| [new version] | YYYY-MM-DD | Iterated | jr-iterate-spec — [one-line change description] |
 ```
 
 ---
 
-## Paso 6 — Guardar el spec iterado
+## Step 6 — Save the iterated spec
 
-> ⚠️ **Obligatorio y no negociable. El skill NO termina hasta que el archivo exista en disco. Ejecutar sin pedir confirmación.**
+> ⚠️ **Mandatory and non-negotiable. Execute without asking.**
 
-1. **Sobreescribe** el archivo existente `specs/nombre-del-spec.md` con el spec iterado completo.
-2. **Verifica** que el archivo fue escrito correctamente.
-3. **Confirma:**
-
-```
-✅ Spec iterado guardado en `specs/[nombre].md` (v[anterior] → v[nueva])
-
-### Resumen del delta
-- [Cambio 1]
-- [Cambio 2]
-
-### Próximos pasos
-- Revisa el spec y ajusta si algo no quedó bien
-- Ejecuta el delta: `/jr-exe-spec @specs/[nombre].md`
-- Después de implementar: `/jr-verify-spec @specs/[nombre].md`
-```
+1. **Overwrite** the existing file `specs/feature-name.md` with the complete iterated spec.
+2. **Verify** the file was written correctly.
+3. **Confirm** to the user in their conversation language with: delta summary, next steps (`/jr-exe-spec`, `/jr-verify-spec`).
 
 ---
 
-## Principios
+## Principles
 
-- **El spec es la fuente de verdad**: si algo no está en el spec, no existe. El delta debe ser explícito.
-- **No romper lo que funciona**: el impacto sobre código ya implementado siempre se documenta.
-- **Versionar, no reescribir**: el historial del spec es valioso — se preserva siempre.
-- **Scope consciente**: si el cambio es tan grande que desvirtúa el spec original, es mejor un spec nuevo con dependencia.
+- **The spec is the source of truth**: if something isn't in the spec, it doesn't exist. The delta must be explicit.
+- **Don't break what works**: impact on already implemented code is always documented.
+- **Version, don't rewrite**: the spec history is valuable — always preserve it.
+- **Scope-conscious**: if the change is so large it undermines the original spec, a new spec with a dependency is better.

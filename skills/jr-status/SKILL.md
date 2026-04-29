@@ -1,148 +1,130 @@
 ---
 name: jr-status
 description: >
-  Úsalo siempre que el usuario ejecute el comando /jr-status o quiera ver el estado general de los specs del proyecto. Se activa con frases como "estado de los specs", "ver specs", "qué specs hay", "dashboard de specs", "cuáles están pendientes", "qué falta por implementar", "resumen del proyecto", o cuando se mencione /jr-status. No recibe argumentos — escanea el directorio specs/ del proyecto actual, lee todos los specs, y genera un dashboard visual con estado, versión, pendientes y próximos pasos accionables por cada spec.
+  Use this skill whenever the user runs /jr-status or wants to see the overall state of the project's specs. Triggered by phrases like "spec status", "see specs", "what specs are there", "specs dashboard", "which are pending", "what's left to implement", "project summary", or when /jr-status is mentioned. Requires no arguments — scans the specs/ directory of the current project, reads all specs, and generates a visual dashboard with status, version, pending items, and actionable next steps for each spec.
+
+language_behavior: >
+  All internal instructions are in English for consistency.
+  Always respond to the user in the same language they used to invoke this skill.
+  Generate the entire dashboard output in the user's conversation language.
+  Read project name and context from PROJECT.md if available.
 ---
 
 # jr-status
 
-Skill de visibilidad del proyecto. Escanea todos los specs del directorio `specs/`, los clasifica por status y genera un dashboard accionable que muestra de un vistazo qué está hecho, qué está en progreso y qué tiene deuda pendiente.
+Project visibility skill. Scans all specs in the `specs/` directory, classifies them by status, and generates an actionable dashboard that shows at a glance what's done, what's in progress, and what has pending debt.
 
 ---
 
-## Paso 0 — Verificar existencia de specs
+## Step 0 — Verify specs exist
 
-1. Busca el directorio `specs/` en la raíz del proyecto.
-2. Si no existe o está vacío:
-   > "No se encontró el directorio `specs/` o está vacío. Crea tu primer spec con `/jr-build-spec @ruta/requerimiento.md`"
-   Termina aquí.
-3. Lista todos los archivos `.md` dentro de `specs/`.
+1. Look for the `specs/` directory in the project root.
+2. If it doesn't exist or is empty, respond in the user's language:
+   > [Tell them no specs found yet, and suggest /jr-build-spec to create the first one]
+   Stop here.
+3. List all `.md` files inside `specs/` (excluding `specs/fixes/` from the main count — handle separately).
 
 ---
 
-## Paso 1 — Leer y clasificar cada spec
+## Step 1 — Read and classify each spec
 
-Para cada archivo `.md` en `specs/`, lee:
-- `**Status:**` — Draft / Implemented / Verified
-- `**Versión:**`
-- `**Fecha:**`
-- `**Specs relacionados:**`
-- Título (primera línea `# Título`)
-- Sección `## 10. Preguntas Pendientes` — ¿tiene ítems `[PENDING]`?
-- Sección `## Delta` — ¿existe? ¿cuántos cambios tuvo?
-- Sección `## Archivos Afectados` — cuántos archivos toca
-- Último entry de `## Historial` — última acción y fecha
+For each `.md` file in `specs/`, read:
+- `**Status:**` — Draft / Implemented / Verified / Pending
+- `**Version:**`
+- `**Date:**`
+- `**Related specs:**`
+- Title (first line `# Title`)
+- `## 10. Pending Questions` section — any `[PENDING]` items?
+- `## Delta` section — does it exist? How many changes?
+- `## Affected Files` section — how many files does it touch?
+- Last entry of `## History` — last action and date
 
-Clasifica cada spec en uno de estos estados:
+Classify each spec in one of these statuses:
 
-| Estado | Criterio |
+| Status | Criterion |
 |---|---|
-| 🟡 **DRAFT** | Status: Draft, sin [PENDING] críticos |
-| 🔴 **DRAFT — BLOQUEADO** | Status: Draft, tiene [PENDING] sin resolver en RFs o Diseño Técnico |
+| ⏳ **PENDING** | Status: Pending (placeholder created by jr-roadmap, spec not built yet) |
+| 🟡 **DRAFT** | Status: Draft, no critical [PENDING] items |
+| 🔴 **DRAFT — BLOCKED** | Status: Draft, has [PENDING] items in FRs or Technical Design |
 | 🔵 **IMPLEMENTED** | Status: Implemented |
 | ✅ **VERIFIED** | Status: Verified |
-| ⚠️ **NEEDS ATTENTION** | Cualquier status con [PENDING] críticos o gaps reportados por jr-verify-spec |
+| ⚠️ **NEEDS ATTENTION** | Any status with critical [PENDING] items or gaps reported by jr-verify-spec |
+
+Also scan `specs/fixes/` and classify fix reports by their status (Resolved / Open).
 
 ---
 
-## Paso 2 — Generar el Dashboard
+## Step 2 — Generate the dashboard
 
-```markdown
-# 📊 jr-status — [Nombre del Proyecto o directorio raíz]
-**Fecha:** YYYY-MM-DD  |  **Total specs:** N
+Present entirely in the user's conversation language:
 
----
+```
+[Dashboard title — Project name or root directory]
+[Date | Total specs: N]
 
-## Resumen
-| ✅ Verified | 🔵 Implemented | 🟡 Draft | 🔴 Bloqueado | ⚠️ Attention |
-|---|---|---|---|---|
-| X | X | X | X | X |
+[Summary table: ✅ Verified | 🔵 Implemented | 🟡 Draft | ⏳ Pending | 🔴 Blocked | ⚠️ Attention]
 
----
+[Specs by status — tables per group:]
 
-## Specs por Estado
+  ✅ Verified
+  | Spec | Version | Last action | Files |
 
-### ✅ Verified
-| Spec | Versión | Última acción | Archivos |
-|---|---|---|---|
-| `specs/nombre.md` — Título del Feature | v1.1 | 2024-01-15 verificado | 5 |
+  🔵 Implemented
+  | Spec | Version | Last action | Files | Suggested action |
+  (suggest /jr-verify-spec for each)
 
-### 🔵 Implemented
-| Spec | Versión | Última acción | Archivos | Acción sugerida |
-|---|---|---|---|---|
-| `specs/nombre.md` — Título del Feature | v1.0 | 2024-01-10 implementado | 3 | Ejecutar `/jr-verify-spec` |
+  🟡 Draft
+  | Spec | Version | Date | Pending items | Suggested action |
+  (suggest /jr-exe-spec for each)
 
-### 🟡 Draft
-| Spec | Versión | Fecha | Pendientes | Acción sugerida |
-|---|---|---|---|---|
-| `specs/nombre.md` — Título del Feature | v1.0 | 2024-01-08 | 0 | Ejecutar `/jr-exe-spec` |
+  ⏳ Pending
+  | Spec | Roadmap # | Depends on | Suggested action |
+  (suggest /jr-build-spec for each)
 
-### 🔴 Draft — Bloqueado
-| Spec | Versión | Pendientes sin resolver | Acción sugerida |
-|---|---|---|---|
-| `specs/nombre.md` — Título del Feature | v1.0 | 2 (C1, D3) | Resolver pendientes → `/jr-exe-spec` |
+  🔴 Draft — Blocked
+  | Spec | Version | Unresolved pending | Suggested action |
 
-### ⚠️ Needs Attention
-| Spec | Versión | Problema detectado | Acción sugerida |
-|---|---|---|---|
-| `specs/nombre.md` — Título del Feature | v2.0 | Gaps en verificación | Re-ejecutar `/jr-exe-spec` para cerrar gaps |
+  ⚠️ Needs Attention
+  | Spec | Version | Detected problem | Suggested action |
 
----
+[Dependencies between specs — only specs with declared dependencies]
 
-## Dependencias entre Specs
+[Fix reports (specs/fixes/) — if any exist]
+  | Fix report | Status | Date |
 
-> Solo se muestran specs con dependencias declaradas.
+[Recommended next steps — ordered by priority and unblockability]
+  1. [URGENT] ...
+  2. [QUICK WIN] ...
+  3. [DEBT] ...
 
-- `specs/checkout.md` depende de → `specs/autenticacion.md` ✅
-- `specs/notificaciones.md` depende de → `specs/perfil-usuario.md` 🔵 *(dependencia no verificada aún)*
-
----
-
-## Próximos pasos recomendados
-
-> Ordenados por prioridad y desbloqueabilidad.
-
-1. **[URGENTE]** Resolver pendientes en `specs/nombre-bloqueado.md` (C1, D3) para poder ejecutarlo
-2. **[QUICK WIN]** `specs/nombre-draft.md` está listo — ejecutar `/jr-exe-spec @specs/nombre-draft.md`
-3. **[DEUDA]** `specs/nombre-implemented.md` implementado pero sin verificar — ejecutar `/jr-verify-spec @specs/nombre-implemented.md`
-4. **[ITERACIÓN]** `specs/nombre-verified.md` v1.0 verificado — ¿hay nuevos requerimientos? `/jr-iterate-spec @specs/nombre-verified.md`
-
----
-
-## Estadísticas del Proyecto
-
-- **Specs totales:** N
-- **Cobertura verificada:** X% (verified / total)
-- **Deuda técnica:** X specs implementados sin verificar
-- **Specs bloqueados:** X (requieren decisiones pendientes)
-- **Feature más reciente:** `specs/nombre.md` — hace X días
+[Project statistics]
+  - Total specs: N
+  - Verified coverage: X% (verified / total)
+  - Technical debt: X implemented specs not yet verified
+  - Blocked specs: X
+  - Most recent feature: `specs/name.md` — X days ago
+  - Open fix reports: X
 ```
 
 ---
 
-## Paso 3 — Detectar anomalías
+## Step 3 — Detect anomalies
 
-Además del dashboard, reporta si detectas:
+Report if detected, in the user's language:
 
-**Specs huérfanos:** specs que declaran dependencia de otro spec que no existe en `specs/`.
-```
-⚠️ `specs/checkout.md` declara dependencia de `specs/pagos.md` que no existe en el directorio.
-```
+**Orphan specs:** specs that declare a dependency on another spec that doesn't exist in `specs/`.
 
-**Specs muy viejos en Draft:** specs en Draft con más de 30 días sin actividad.
-```
-⚠️ `specs/feature-antigua.md` lleva 45 días en Draft sin cambios. ¿Sigue siendo relevante?
-```
+**Very old drafts:** specs in Draft status with more than 30 days of inactivity.
 
-**Specs sin Historial:** specs que no tienen la sección `## Historial` (generados antes de la v2 del toolkit).
-```
-ℹ️ `specs/feature-vieja.md` no tiene sección Historial — fue generado con una versión anterior del toolkit.
-```
+**Specs without History:** specs that don't have the `## History` section (generated before toolkit v2).
+
+**Pending specs with no roadmap reference:** placeholder specs that don't mention which roadmap number they belong to.
 
 ---
 
-## Principios
+## Principles
 
-- **Solo leer, nunca modificar**: este skill es de observabilidad, no toca ningún archivo.
-- **Accionable sobre informativo**: cada ítem del dashboard tiene una acción sugerida concreta.
-- **Honesto sobre deuda**: no ocultar specs con problemas — visibilidad es el objetivo.
+- **Read only, never modify**: this skill is for observability — it doesn't touch any file.
+- **Actionable over informative**: every dashboard item has a concrete suggested action.
+- **Honest about debt**: don't hide specs with problems — visibility is the goal.
+- **Speaks the user's language**: the entire output is in the conversation language, regardless of the language specs were written in.

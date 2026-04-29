@@ -1,254 +1,246 @@
 ---
 name: jr-fix-spec
 description: >
-  Úsalo siempre que el usuario ejecute el comando /jr-fix-spec o reporte un bug que necesite ser diagnosticado, documentado y corregido. Se activa con frases como "hay un bug en", "esto está fallando", "fix este error", "corregir comportamiento", "el feature no funciona como esperaba", o cuando se mencione /jr-fix-spec. Recibe un archivo .md con la descripción breve del bug (ubicado en specs/fixes/), diagnostica el root cause, construye un fix plan quirúrgico, ejecuta solo los cambios necesarios con trazabilidad, verifica regresión en archivos adyacentes, y actualiza el spec original si existe. Funciona tanto si hay un spec de feature relacionado como si el bug es en código legacy sin spec.
+  Use this skill whenever the user runs /jr-fix-spec or reports a bug that needs to be diagnosed, documented, and fixed. Triggered by phrases like "there's a bug in", "this is failing", "fix this error", "fix behavior", "the feature isn't working as expected", or when /jr-fix-spec is mentioned. Receives a .md file with a brief bug description (located in specs/fixes/), diagnoses the root cause, builds a surgical fix plan, executes only the necessary changes with traceability, verifies regression on adjacent files, and updates the original spec if one exists. Works both when a related feature spec exists and when the bug is in legacy code without a spec.
+
+language_behavior: >
+  All internal instructions are in English for consistency.
+  Always respond to the user in the same language they used to invoke this skill.
+  Read PROJECT.md at the start for context.
+  Generate all output (diagnosis, plan, report) in the user's conversation language.
+  Fix report files are written in the Docs language from PROJECT.md.
+  Code traceability comments follow the code language convention (// fix: ... or # fix: ... etc).
 ---
 
 # jr-fix-spec
 
-Skill para diagnosticar, documentar y corregir bugs de forma estructurada. Recibe una descripción breve del bug, construye un diagnóstico completo, ejecuta el fix mínimo necesario y deja trazabilidad completa del problema y su solución.
+Skill to diagnose, document, and fix bugs in a structured and surgical way. Receives a brief bug description, builds a complete diagnosis, executes the minimum necessary fix, and leaves full traceability of the problem and its solution.
 
-El principio central: **tocar lo mínimo posible para corregir lo máximo posible.**
+The core principle: **touch as little as possible to fix as much as possible.**
 
 ---
 
-## Paso 0 — Validar input
+## Step 0 — Validate input
 
-El usuario debe proveer un archivo `.md` con la descripción del bug:
+The user must provide a `.md` file with the bug description:
 
 ```
-/jr-fix-spec @specs/fixes/nombre-del-bug.md
+/jr-fix-spec @specs/fixes/bug-name.md
 ```
 
-Si no existe el archivo o no se adjuntó:
-> "Necesito el archivo con la descripción del bug. Créalo en `specs/fixes/nombre-del-bug.md` con una descripción breve de qué está fallando y dónde, luego ejecuta `/jr-fix-spec @specs/fixes/nombre-del-bug.md`"
+If the file doesn't exist or wasn't attached, respond in the user's language:
+> [Ask them to create a brief .md file in `specs/fixes/bug-name.md` describing what's failing and where, then run the command]
 
-Si no existe el directorio `specs/fixes/`, créalo sin preguntar.
+If `specs/fixes/` doesn't exist, create it without asking.
 
----
-
-## Paso 1 — Leer el reporte del bug
-
-Lee el archivo `.md` del bug y extrae:
-- **Comportamiento actual:** qué está pasando
-- **Comportamiento esperado:** qué debería pasar
-- **Dónde ocurre:** archivo(s), componente(s), ruta(s) mencionadas
-- **Condiciones de reproducción:** si se mencionan
+Also read `PROJECT.md` for context and Docs language.
 
 ---
 
-## Paso 2 — Buscar spec relacionado
+## Step 1 — Read the bug report
 
-Busca en `specs/` si existe un spec que cubra el área afectada:
-
-**Si existe spec relacionado:**
-- Léelo completo
-- Identifica el CA (criterio de aceptación) que este bug viola
-- Registra: `Viola CA-XX del RF-XX: [descripción]`
-
-**Si NO existe spec relacionado (código legacy o preexistente):**
-- Documéntalo: `Bug en código sin spec asociado`
-- Escanea los archivos mencionados en el reporte para entender el comportamiento esperado desde el código mismo
-- Infiere el comportamiento correcto desde la lógica existente, nombres de funciones, comentarios, o contexto del proyecto
-
-Anuncia al usuario cuál caso aplica antes de continuar.
+Read the `.md` file and extract:
+- **Actual behavior:** what is happening
+- **Expected behavior:** what should happen
+- **Where it occurs:** mentioned file(s), component(s), route(s)
+- **Reproduction conditions:** if mentioned
 
 ---
 
-## Paso 3 — Diagnóstico
+## Step 2 — Find related spec
 
-Analiza el código en los archivos reportados (y los relacionados) para:
+Search `specs/` for a spec that covers the affected area:
 
-1. **Confirmar** que el bug existe donde se reportó
-2. **Identificar el root cause** — la causa real, no el síntoma
-3. **Mapear el impacto** — qué otros archivos o flujos podrían verse afectados por el fix
+**If a related spec exists:**
+- Read it completely
+- Identify which AC (acceptance criterion) this bug violates
+- Record: `Violates AC-XX of FR-XX: [description]`
 
-Presenta el diagnóstico antes de continuar:
+**If NO related spec exists (legacy or pre-existing code):**
+- Document it: `Bug in code without associated spec`
+- Scan the files mentioned in the report to understand expected behavior from the code itself
+- Infer correct behavior from existing logic, function names, comments, or project context
+
+Announce which case applies to the user in their conversation language before continuing.
+
+---
+
+## Step 3 — Diagnosis
+
+Analyze the code in the reported files (and related ones) to:
+
+1. **Confirm** the bug exists where reported
+2. **Identify the root cause** — the real cause, not just the symptom
+3. **Map the impact** — what other files or flows could be affected by the fix
+
+Present the diagnosis to the user in their conversation language:
 
 ```
-## 🔍 Diagnóstico
+[Bug confirmed: Yes / No]
+[Root cause: precise technical description of why it fails]
+[Exact location: `file.ts:line` — what's there]
+[Violated AC: AC-XX of FR-XX — description / Not applicable (no spec)]
+[Potential fix impact: files that could be affected when correcting]
 
-**Bug confirmado:** Sí / No (si no, explicar qué se encontró)
-**Root cause:** [descripción técnica precisa de por qué falla]
-**Ubicación exacta:** `archivo.ts:línea` — [qué hay ahí]
-**CA violado:** CA-XX de RF-XX — [descripción] / No aplica (sin spec)
-**Impacto potencial del fix:** [archivos que podrían verse afectados al corregir]
-
-¿Confirmas que el diagnóstico es correcto? Responde **"sí"** para continuar con el fix plan.
+[Ask for confirmation before proceeding to fix plan]
 ```
 
-Espera confirmación antes de continuar.
+Wait for confirmation before continuing.
 
 ---
 
-## Paso 4 — Fix Plan
+## Step 4 — Fix Plan
 
-Genera un plan quirúrgico — **solo los cambios estrictamente necesarios**:
+Generate a surgical plan — **only the strictly necessary changes**:
 
 ```
-## 🔧 Fix Plan — [Nombre del Bug]
+[Fix Plan — Bug Name]
 
-**Archivos a modificar:** X
-**Archivos a verificar (regresión):** Y
-**Estrategia:** [descripción en una línea de cómo se corrige]
+[Files to modify: X]
+[Files to verify (regression): Y]
+[Strategy: one-line description of how to fix it]
 
----
+[Changes]
+  - [ ] 1. [Concrete action] → `path/file.ext:line` [WHAT TO CHANGE]
+  - [ ] 2. [Concrete action if applicable]
 
-### Cambios
-  - [ ] 1. [Acción concreta] → `ruta/archivo.ext:línea` [QUÉ CAMBIAR]
-  - [ ] 2. [Acción concreta si aplica] → `ruta/archivo.ext` [QUÉ CAMBIAR]
+[Regression verification]
+  - [ ] R1. Verify `[adjacent flow]` still works in `file.ext`
+  - [ ] R2. Verify `[other flow]` is not affected
 
-### Verificación de regresión
-  - [ ] R1. Verificar que `[flujo adyacente]` sigue funcionando en `archivo.ext`
-  - [ ] R2. Verificar que `[otro flujo]` no se ve afectado
-
----
-> ¿Apruebas este fix plan? Responde **"sí"** para ejecutar.
+[Ask for approval before executing]
 ```
 
-**Reglas del fix plan:**
-- Máximo de cambios posible en el menor número de archivos posible.
-- Si el fix requiere tocar más de 5 archivos, pausar y preguntar: ¿esto es realmente un fix o es una iteración del feature?
-- No refactorizar código adyacente aunque "se vea feo" — eso va en una iteración separada.
-- No agregar funcionalidad nueva — solo corregir el comportamiento roto.
+**Fix plan rules:**
+- Maximum impact with minimum number of files changed.
+- If the fix requires touching more than 5 files, pause and ask: is this really a fix or a feature iteration?
+- Do not refactor adjacent code even if it "looks ugly" — that goes in a separate iteration.
+- Do not add new functionality — only fix the broken behavior.
 
 ---
 
-## Paso 5 — Esperar aprobación
+## Step 5 — Wait for approval
 
-No ejecutar nada hasta recibir confirmación explícita del usuario. Si pide ajustes al plan, modificar y volver a presentar.
+Do not execute anything until receiving explicit confirmation from the user. If they request adjustments, modify and re-present.
 
 ---
 
-## Paso 6 — Ejecutar el fix
+## Step 6 — Execute the fix
 
-Por cada cambio del plan:
+For each item in the plan:
 
-1. **Anuncia:** `▶ 1. Corrigiendo \`src/components/Form.tsx:47\`...`
-2. **Ejecuta** el cambio mínimo necesario.
-3. **Agrega trazabilidad** en el bloque corregido:
+1. **Announce** in user's language: `▶ 1. Fixing \`src/components/Form.tsx:47\`...`
+2. **Execute** the minimum necessary change.
+3. **Add traceability** in the corrected block:
    ```
-   // fix: specs/fixes/nombre-del-bug.md — [descripción en una línea]
+   // fix: specs/fixes/bug-name.md — [one-line description]
    ```
-4. **Confirma:** `✓ 1. Completado`
+4. **Confirm** in user's language: `✓ 1. Done`
 
-**Si encuentra algo inesperado durante la ejecución**, pausa:
-> "⚠️ Al corregir `archivo.ts:47` encontré que [situación inesperada]. Opciones: [A] / [B]. ¿Cuál prefieres?"
-
----
-
-## Paso 7 — Verificación de regresión
-
-Para cada ítem de verificación del plan:
-
-1. Lee los archivos adyacentes mencionados.
-2. Evalúa si el fix podría haberlos afectado.
-3. Reporta:
-   - ✅ `[flujo]` — sin impacto detectado
-   - ⚠️ `[flujo]` — revisar manualmente: [qué verificar y dónde]
+**If something unexpected is found during execution**, pause in user's language before continuing.
 
 ---
 
-## Paso 8 — Actualizar documentación
+## Step 7 — Regression verification
 
-### Si existe spec relacionado:
+For each verification item in the plan:
 
-Abre `specs/[nombre-del-spec].md` y aplica:
+1. Read the adjacent files mentioned.
+2. Evaluate if the fix could have affected them.
+3. Report in user's language:
+   - ✅ `[flow]` — no impact detected
+   - ⚠️ `[flow]` — verify manually: [what to check and where]
 
-1. En el RF afectado, agrega el caso borde como CA nuevo:
+---
+
+## Step 8 — Update documentation
+
+### If a related spec exists:
+
+Open `specs/[spec-name].md` and apply:
+
+1. In the affected FR, add the edge case as a new AC:
    ```markdown
-   - [ ] CA-XX: [descripción del caso borde que el bug exponía] *(agregado en hotfix YYYY-MM-DD)*
+   - [ ] AC-XX: [description of the edge case the bug exposed] *(added in hotfix YYYY-MM-DD)*
    ```
 
-2. Agrega entrada en `## Historial`:
+2. Add entry in `## History`:
    ```markdown
-   | [versión] | YYYY-MM-DD | Hotfix | jr-fix-spec — [descripción del bug en una línea] |
+   | [version] | YYYY-MM-DD | Hotfix | jr-fix-spec — [one-line bug description] |
    ```
 
-3. **No cambia el Status ni la versión del spec** — un hotfix no es una iteración.
+3. **Do not change the spec Status or version** — a hotfix is not an iteration.
 
-### Si NO existe spec relacionado:
+### If NO related spec exists:
 
-Actualiza el archivo del bug report `specs/fixes/nombre-del-bug.md` con el diagnóstico y la solución aplicada:
+Update the bug report file `specs/fixes/bug-name.md` with the diagnosis and applied solution. Write in **Docs language** from PROJECT.md:
 
 ```markdown
-# Fix: [Nombre del Bug]
+# Fix: [Bug Name]
 
 **Status:** Resolved
-**Fecha:** YYYY-MM-DD
-**Archivos afectados:** [lista]
+**Date:** YYYY-MM-DD
+**Affected files:** [list]
 
-## Descripción original
-[lo que el usuario reportó]
+## Original description
+[what the user reported]
 
 ## Root cause
-[diagnóstico encontrado]
+[diagnosis found]
 
-## Solución aplicada
-[descripción de qué se cambió y por qué]
+## Applied solution
+[description of what was changed and why]
 
-## Archivos modificados
-| Archivo | Cambio |
+## Modified files
+| File | Change |
 |---|---|
-| `ruta/archivo.ext` | [descripción del cambio] |
+| `path/file.ext` | [change description] |
 
-## Verificación de regresión
-[resultado de la verificación]
+## Regression verification
+[verification result]
 ```
 
 ---
 
-## Paso 9 — Reporte final
+## Step 9 — Final report
+
+Present in the user's conversation language:
 
 ```
-## ✅ Fix Completado — [Nombre del Bug]
+[Fix Completed — Bug Name]
 
-**Root cause resuelto:** [descripción en una línea]
-**Archivos modificados:** X
-**CA violado corregido:** CA-XX de RF-XX / No aplica
+[Root cause resolved: one-line description]
+[Files modified: X]
+[Violated AC fixed: AC-XX of FR-XX / Not applicable]
 
-### Cambios aplicados
-| Archivo | Línea(s) | Cambio |
-|---|---|---|
-| `ruta/archivo.ext` | 47 | [qué se corrigió] |
-
-### Regresión
-| Flujo | Estado |
-|---|---|
-| [flujo verificado] | ✅ Sin impacto |
-| [flujo a revisar] | ⚠️ Verificar manualmente |
-
-### Cómo confirmar el fix
-1. [Paso concreto para reproducir el bug y verificar que ya no ocurre]
-
-### Documentación actualizada
-- [spec relacionado actualizado con CA nuevo] / [fix report guardado en specs/fixes/]
+[Changes applied table: file, line(s), change]
+[Regression table: flow, status]
+[How to confirm the fix: concrete steps]
+[Documentation updated: spec with new AC / fix report saved]
 ```
 
 ---
 
-## Casos especiales
+## Special cases
 
-**El bug no se puede reproducir desde el código:**
-> "No encontré evidencia del bug en `[archivo]`. Posiblemente sea un problema de estado en runtime, datos específicos, o condición de carrera. ¿Puedes darme más contexto sobre cómo reproducirlo?"
+**Bug cannot be reproduced from code:**
+Report in user's language: possibly a runtime state issue, specific data, or race condition. Ask for more context.
 
-**El fix requiere un cambio mayor (más de 5 archivos):**
-> "Este bug tiene un root cause más profundo que requiere cambios en X archivos. Esto se acerca más a una iteración del feature que a un hotfix. ¿Prefieres hacer un `/jr-iterate-spec` o continuar con el fix extendido?"
+**Fix requires a larger change (more than 5 files):**
+Report in user's language: the root cause is deeper and requires an `/jr-iterate-spec` rather than a hotfix. Let the user decide.
 
-**Hay múltiples bugs en el reporte:**
-Sepáralos explícitamente y pregunta:
-> "Detecto 2 bugs distintos en el reporte. ¿Los resuelvo en un solo fix o prefieres reportes separados para cada uno?"
+**Multiple bugs in the report:**
+Separate them explicitly and ask in user's language: resolve in a single fix or separate reports for each?
 
-**El fix expone un problema de diseño más grande:**
-Documéntalo sin resolverlo:
-> "El fix está aplicado, pero el root cause expone un problema de diseño en [área]. Considera crear un spec para refactorizarlo. Lo documento en las notas del fix report."
+**Fix exposes a larger design problem:**
+Document without resolving it. Note it in the fix report as technical debt to address.
 
 ---
 
-## Principios
+## Principles
 
-- **Mínimo cambio, máximo impacto**: un fix que toca 1 línea es mejor que uno que toca 10 si resuelve el problema.
-- **No mezclar fix con mejoras**: si durante el fix ves algo que mejorar, documéntalo como deuda técnica, no lo corrijas en el mismo PR.
-- **Trazabilidad siempre**: cada línea corregida debe saber por qué fue corregida.
-- **Regresión no es opcional**: un fix que rompe otra cosa no es un fix.
-- **Honesto sobre el root cause**: si no se puede determinar con certeza, se documenta la hipótesis como hipótesis.
+- **Minimum change, maximum impact**: a fix that touches 1 line is better than one that touches 10 if it solves the problem.
+- **Don't mix fix with improvements**: if you see something to improve during the fix, document it as technical debt — don't fix it in the same PR.
+- **Traceability always**: every corrected line must know why it was corrected.
+- **Regression is not optional**: a fix that breaks something else is not a fix.
+- **Honest about root cause**: if it can't be determined with certainty, document the hypothesis as a hypothesis.

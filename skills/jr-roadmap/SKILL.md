@@ -1,285 +1,240 @@
 ---
 name: jr-roadmap
 description: >
-  Úsalo siempre que el usuario ejecute el comando /jr-roadmap o quiera descomponer un producto en features ejecutables y ordenados. Se activa con frases como "hacer el roadmap", "planificar el proyecto", "qué construir primero", "descomponer el producto", "backlog del proyecto", "orden de desarrollo", o cuando se mencione /jr-roadmap. Lee docs/vision.md y docs/architecture.md, descompone el producto en épicas y features, los ordena por dependencias técnicas y valor, y produce un roadmap accionable con el orden de ejecución recomendado. Al finalizar, el usuario puede ejecutar jr-build-spec sobre cada feature en orden. Es el tercer paso del flujo de inicio de proyecto.
+  Use this skill whenever the user runs /jr-roadmap or wants to break down a product into executable, ordered features. Triggered by phrases like "make the roadmap", "plan the project", "what to build first", "break down the product", "project backlog", "development order", or when /jr-roadmap is mentioned. Reads docs/vision.md and docs/architecture.md, breaks the product down into epics and features, orders them by technical dependencies and value, and produces an actionable roadmap with the recommended execution order. At the end, the user can run jr-build-spec on each feature in order. It is the third step of the project kickoff flow.
+
+language_behavior: >
+  All internal instructions are in English for consistency.
+  Always respond to the user in the same language they used to invoke this skill.
+  Read PROJECT.md at the start — write all generated files in the "Docs language" defined there.
+  If not set, use the user's conversation language for generated files.
 ---
 
 # jr-roadmap
 
-Tercer skill del flujo de inicio de proyecto. Con visión y arquitectura definidas, descompone el producto en épicas y features, los ordena por dependencias y valor entregado, y produce el mapa de trabajo que guía el uso del resto del toolkit.
+Third skill in the project kickoff flow. With vision and architecture defined, breaks the product into epics and features, orders them by dependencies and value delivered, and produces the work map that guides the rest of the toolkit.
 
-**Posición en el flujo:**
+**Position in the flow:**
 ```
 jr-vision → jr-arch → [jr-roadmap] → jr-build-spec → jr-exe-spec → jr-verify-spec
 ```
 
 ---
 
-## Paso 0 — Validar input
+## Step 0 — Validate input
 
 ```
 /jr-roadmap
 ```
 
-No requiere argumentos. Busca automáticamente `docs/vision.md` y `docs/architecture.md`.
+No arguments required. Automatically looks for `docs/vision.md` and `docs/architecture.md`.
 
-Si falta alguno:
-> "Necesito estos documentos para construir el roadmap:
-> - `docs/vision.md` → ejecuta `/jr-vision` [encontrado ✓ / no encontrado ✗]
-> - `docs/architecture.md` → ejecuta `/jr-arch` [encontrado ✓ / no encontrado ✗]"
+If either is missing, respond in the user's language indicating which documents are missing and which commands to run first.
 
-Lee ambos documentos completos antes de continuar.
+Read both documents completely before continuing. Also read `PROJECT.md` for the Docs language.
 
 ---
 
-## Paso 1 — Extraer features desde la visión y la arquitectura
+## Step 1 — Extract features from vision and architecture
 
-Con base en ambos documentos, lista todos los features identificados:
+Based on both documents, list all identified features:
 
-- Del **MVP** de la visión (sección 6)
-- De los **módulos** de la arquitectura (sección 4)
-- De las **entidades del modelo de datos** (sección 6 de arquitectura)
-- Features **técnicos implícitos** que no están en la visión pero son necesarios (autenticación, infraestructura base, etc.)
+- From the **MVP** in the vision (section 6)
+- From the **modules** in the architecture (section 4)
+- From the **data model entities** (architecture section 6)
+- **Implicit technical features** not in the vision but necessary (authentication, base infrastructure, etc.)
 
-Presenta la lista al usuario antes de ordenar:
+Present the list to the user in their conversation language before ordering:
 
 ```
-## 📋 Features identificados
+[List of identified features grouped by: Technical (infrastructure), MVP (product), Phase 2]
 
-Encontré los siguientes features desde la visión y la arquitectura. 
-¿Falta algo o quieres agregar/quitar alguno antes de ordenarlos?
-
-**Técnicos (infraestructura):**
-- [ ] Setup del proyecto y CI/CD
-- [ ] Sistema de autenticación
-- [ ] [otros técnicos]
-
-**MVP (producto):**
-- [ ] [Feature 1]
-- [ ] [Feature 2]
-- [ ] [Feature 3]
-
-**Fase 2 (no en MVP):**
-- [ ] [Feature A]
-- [ ] [Feature B]
+[Ask if anything is missing or if they want to add/remove before ordering]
 ```
 
-Espera confirmación o ajustes antes de continuar.
+Wait for confirmation or adjustments before continuing.
 
 ---
 
-## Paso 2 — Ordenar por dependencias y valor
+## Step 2 — Order by dependencies and value
 
-Para cada feature, evalúa:
+For each feature, evaluate:
 
-**Dependencias técnicas:** ¿qué debe existir antes de poder construir esto?
-- Ejemplo: "Gestión de clientes" depende de "Sistema de autenticación"
-- Ejemplo: "Dashboard de reportes" depende de "Módulo de facturación"
+**Technical dependencies:** What must exist before this can be built?
+**Value delivered:** How much value does it bring to the end user? (High / Medium / Low)
+**Technical complexity:** (High / Medium / Low)
 
-**Valor entregado:** ¿cuánto valor aporta al usuario final?
-- Alto: es parte del flujo principal del producto
-- Medio: mejora la experiencia pero no es bloqueante
-- Bajo: nice-to-have, no cambia el valor core
-
-**Complejidad técnica:**
-- Alta: involucra múltiples módulos, integraciones externas, o lógica compleja
-- Media: un módulo con lógica moderada
-- Baja: CRUD simple, UI sin lógica compleja
-
-Con esto, ordena los features respetando las dependencias y priorizando valor sobre complejidad.
+Order features respecting dependencies and prioritizing value over complexity.
 
 ---
 
-## Paso 3 — Construir el roadmap
+## Step 3 — Build the roadmap
+
+Write in the **Docs language** from PROJECT.md.
 
 ```markdown
-# Roadmap — [Nombre del Proyecto]
+# Roadmap — [Project Name]
 
 **Status:** Active
-**Fecha:** YYYY-MM-DD
-**Autor:** jr-roadmap
-**Basado en:** docs/vision.md · docs/architecture.md
+**Date:** YYYY-MM-DD
+**Author:** jr-roadmap
+**Based on:** docs/vision.md · docs/architecture.md
 
 ---
 
-## Resumen
+## Summary
 
-| Total features | MVP | Fase 2 | Técnicos |
+| Total features | MVP | Phase 2 | Technical |
 |---|---|---|---|
 | N | N | N | N |
 
-**Orden de ejecución estimado:** N semanas/sprints para MVP completo
-*(Estimado orientativo — ajustar según velocidad del equipo)*
+**Estimated execution:** N weeks/sprints for complete MVP
+*(Indicative estimate — adjust based on team velocity)*
 
 ---
 
-## Épicas
+## Epics
 
-> Una épica es un grupo de features relacionados que juntos entregan una capacidad completa del producto.
+> An epic is a group of related features that together deliver a complete product capability.
 
-### Épica 1: [Nombre] — [Fundación técnica]
-*[Descripción en una línea de qué capacidad entrega esta épica]*
+### Epic 1: [Name] — [Technical foundation]
+*[One-line description of what capability this epic delivers]*
 
-### Épica 2: [Nombre] — [Dominio principal]
-*[Descripción]*
-
-### Épica 3: [Nombre] — [Dominio secundario]
-*[Descripción]*
+### Epic 2: [Name] — [Main domain]
+*[Description]*
 
 ---
 
-## Orden de ejecución
+## Execution order
 
-### 🏗️ FASE 0 — Fundación (sin esto nada funciona)
+### 🏗️ PHASE 0 — Foundation (nothing works without this)
 
-| # | Feature | Épica | Valor | Complejidad | Depende de | Spec |
+| # | Feature | Epic | Value | Complexity | Depends on | Spec |
 |---|---|---|---|---|---|---|
-| 01 | Setup del proyecto y CI/CD | Fundación | — | Baja | — | `specs/setup-proyecto.md` |
-| 02 | Sistema de autenticación | Fundación | Alto | Media | 01 | `specs/autenticacion.md` |
-| 03 | [Feature técnico] | Fundación | — | [X] | [X] | `specs/[nombre].md` |
+| 01 | Project setup and CI/CD | Foundation | — | Low | — | `specs/project-setup.md` |
+| 02 | Authentication system | Foundation | High | Medium | 01 | `specs/authentication.md` |
 
-### 🚀 FASE 1 — MVP core (el producto mínimo que entrega valor)
+### 🚀 PHASE 1 — MVP core (the minimum product that delivers value)
 
-| # | Feature | Épica | Valor | Complejidad | Depende de | Spec |
+| # | Feature | Epic | Value | Complexity | Depends on | Spec |
 |---|---|---|---|---|---|---|
-| 04 | [Feature] | [Épica] | Alto | Media | 02 | `specs/[nombre].md` |
-| 05 | [Feature] | [Épica] | Alto | Alta | 04 | `specs/[nombre].md` |
-| 06 | [Feature] | [Épica] | Alto | Baja | 02 | `specs/[nombre].md` |
+| 03 | [Feature] | [Epic] | High | Medium | 02 | `specs/[name].md` |
 
-### ✨ FASE 2 — Extensiones (amplían el valor del MVP)
+### ✨ PHASE 2 — Extensions (expand MVP value)
 
-| # | Feature | Épica | Valor | Complejidad | Depende de | Spec |
+| # | Feature | Epic | Value | Complexity | Depends on | Spec |
 |---|---|---|---|---|---|---|
-| 07 | [Feature] | [Épica] | Medio | Media | 05, 06 | `specs/[nombre].md` |
-| 08 | [Feature] | [Épica] | Medio | Baja | 04 | `specs/[nombre].md` |
+| N | [Feature] | [Epic] | Medium | Medium | 03 | `specs/[name].md` |
 
 ---
 
-## Mapa de dependencias
+## Dependency map
 
 ```
 01 (Setup)
  └── 02 (Auth)
-      ├── 04 (Feature A)
-      │    └── 05 (Feature B)
-      └── 06 (Feature C)
-           └── 07 (Feature D)
+      ├── 03 (Feature A)
+      └── 04 (Feature B)
 ```
 
 ---
 
-## Cómo usar este roadmap con el toolkit
+## How to use this roadmap with the toolkit
 
-Para cada feature, en orden:
+For each feature, in order:
 
 ```bash
-# 1. Construir el spec del feature
-/jr-build-spec @docs/[descripcion-del-feature].md
-# El spec se guarda en specs/[nombre].md
+# 1. Build the spec
+/jr-build-spec @docs/[feature-description].md
 
-# 2. Implementar
-/jr-exe-spec @specs/[nombre].md
+# 2. Implement
+/jr-exe-spec @specs/[name].md
 
-# 3. Verificar
-/jr-verify-spec @specs/[nombre].md
+# 3. Verify
+/jr-verify-spec @specs/[name].md
 
-# Ver estado general
+# Check overall status
 /jr-status
 ```
 
 ---
 
-## Decisiones de priorización
+## Prioritization decisions
 
-> Por qué se ordenó así — útil para revisitar si cambian las prioridades.
+> Why things were ordered this way — useful to revisit if priorities change.
 
-- **[Feature X] antes que [Feature Y]:** [razón técnica o de producto]
-- **[Feature Z] en Fase 2:** [por qué no en MVP]
-
----
-
-## Lo que no está en este roadmap
-
-> Features descartados conscientemente y por qué.
-
-- **[Feature descartado]:** [razón — scope, complejidad, baja prioridad]
+- **[Feature X] before [Feature Y]:** [technical or product reason]
+- **[Feature Z] in Phase 2:** [why not in MVP]
 
 ---
-## Historial
 
-| Versión | Fecha | Acción |
+## What's not in this roadmap
+
+> Features consciously discarded and why.
+
+- **[Discarded feature]:** [reason — scope, complexity, low priority]
+
+---
+## History
+
+| Version | Date | Action |
 |---|---|---|
-| 1.0 | YYYY-MM-DD | Creado por jr-roadmap |
+| 1.0 | YYYY-MM-DD | Created by jr-roadmap |
 ```
 
 ---
 
-## Paso 4 — Crear estructura de specs
+## Step 4 — Create spec structure
 
-> ⚠️ **Obligatorio. Ejecutar sin preguntar.**
+> ⚠️ **Mandatory. Execute without asking.**
 
-1. Crea el directorio `specs/` si no existe (y `specs/fixes/`).
-2. Para cada feature del roadmap, crea un archivo vacío placeholder:
+1. Create `specs/` if it doesn't exist (and `specs/fixes/`).
+2. For each feature in the roadmap, create a placeholder file:
    ```
-   specs/[slug-del-feature].md
+   specs/[feature-slug].md
    ```
-   Con este contenido mínimo:
+   With this minimal content (in Docs language):
    ```markdown
-   # [Nombre del Feature]
+   # [Feature Name]
    
    **Status:** Pending
-   **Roadmap:** #[número] — [Épica]
-   **Depende de:** [specs previos o "Ninguno"]
+   **Roadmap:** #[number] — [Epic]
+   **Depends on:** [previous specs or "None"]
    
-   > Spec pendiente de construir. Ejecutar `/jr-build-spec @[descripción]` cuando sea el turno de este feature según el roadmap.
+   > Spec pending creation. Run `/jr-build-spec` when it's this feature's turn according to the roadmap.
    ```
-3. Esto hace que `/jr-status` muestre todos los features desde el inicio, incluso antes de tener sus specs completos.
+3. This makes `/jr-status` show all features from the start, even before their specs are complete.
 
 ---
 
-## Paso 5 — Guardar y confirmar
+## Step 5 — Save and confirm
 
-> ⚠️ **Obligatorio. No preguntar — ejecutar directamente.**
+> ⚠️ **Mandatory. Do not ask — execute directly.**
 
-1. Guarda en `docs/roadmap.md`.
-2. Confirma:
-
-```
-✅ Roadmap guardado en `docs/roadmap.md`
-✅ Placeholders creados en specs/ para N features
-
-**Tu plan de trabajo:**
-Fase 0: N features (fundación técnica)
-Fase 1: N features (MVP)
-Fase 2: N features (extensiones)
-
-**Primer paso:**
-/jr-build-spec @[descripción del feature #01]
-
-Cuando termines cada feature, `/jr-status` te muestra el estado completo del proyecto.
-```
+1. Save to `docs/roadmap.md`.
+2. Confirm to the user in their conversation language with: phase summary, total features per phase, and what the first command to run is.
 
 ---
 
-## Casos especiales
+## Special cases
 
-**El producto es muy grande (más de 20 features en MVP):**
-> "El MVP identificado tiene X features, lo que es considerable. Te recomiendo reducirlo — un MVP real debería poder construirse en 4-6 semanas. ¿Qué es lo absolutamente esencial para validar el producto?"
+**Product is very large (more than 20 MVP features):**
+Recommend reducing the MVP. A real MVP should be buildable in 4-6 weeks.
 
-**No hay dependencias claras entre features:**
-Ordenar por valor descendente — primero lo que más valor entrega al usuario.
+**No clear dependencies between features:**
+Order by descending value — most valuable to the user first.
 
-**El usuario quiere un orden diferente al recomendado:**
-Acepta la decisión, documenta la razón en "Decisiones de priorización" y ajusta el mapa de dependencias si es necesario.
+**User wants a different order than recommended:**
+Accept the decision, document the reason in "Prioritization decisions" and adjust the dependency map.
 
-**Ya hay código existente en el proyecto:**
-Identifica qué features ya están implementados (aunque sea parcialmente) y márcalos como `Status: Partial` en los placeholders. El usuario puede decidir si construir el spec retroactivamente o asumir que están completos.
+**Existing code in the project:**
+Identify which features are already (partially) implemented and mark them as `Status: Partial` in the placeholders.
 
 ---
 
-## Principios
+## Principles
 
-- **El orden importa más que la lista**: cualquiera puede listar features, la inteligencia está en el orden.
-- **Dependencias primero**: violar el orden de dependencias siempre cuesta más de lo que ahorra.
-- **MVP es mínimo de verdad**: si el MVP tiene más de 8-10 features de producto (sin contar fundación técnica), probablemente no es mínimo.
-- **El roadmap es vivo**: puede y debe actualizarse. Si cambian las prioridades, se actualiza con `/jr-iterate-spec @docs/roadmap.md`.
+- **Order matters more than the list**: anyone can list features — the intelligence is in the order.
+- **Dependencies first**: violating dependency order always costs more than it saves.
+- **MVP is truly minimum**: if the MVP has more than 8-10 product features (excluding technical foundation), it's probably not minimal.
+- **The roadmap is alive**: update it with `/jr-iterate-spec @docs/roadmap.md` if priorities change.

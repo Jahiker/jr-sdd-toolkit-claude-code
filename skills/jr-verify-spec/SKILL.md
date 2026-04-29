@@ -1,179 +1,153 @@
 ---
 name: jr-verify-spec
 description: >
-  Úsalo siempre que el usuario ejecute el comando /jr-verify-spec o cuando quiera verificar que la implementación de un spec cubre sus criterios de aceptación. Se activa con frases como "verificar el spec", "revisar criterios de aceptación", "checar qué se implementó", "validar el spec", "auditar implementación", o cuando se mencione /jr-verify-spec. Recibe un archivo spec .md (implementado por jr-exe-spec), recorre los archivos afectados, evalúa cobertura de cada criterio de aceptación, detecta gaps, genera un reporte de cobertura y actualiza el historial del spec. Actúa como QA del ciclo spec-driven: cierra el loop entre lo que se pidió y lo que se entregó.
+  Use this skill whenever the user runs /jr-verify-spec or wants to verify that a spec's implementation covers its acceptance criteria. Triggered by phrases like "verify the spec", "check acceptance criteria", "see what was implemented", "validate the spec", "audit implementation", or when /jr-verify-spec is mentioned. Receives an implemented spec .md file, walks the affected files, evaluates coverage of each acceptance criterion, detects gaps, generates a coverage report, and updates the spec history. Acts as QA of the spec-driven cycle: closes the loop between what was requested and what was delivered.
+
+language_behavior: >
+  All internal instructions are in English for consistency.
+  Always respond to the user in the same language they used to invoke this skill.
+  Read PROJECT.md at the start for context.
+  Generate all reports and output in the user's conversation language.
+  Traceability markers in code (// spec: ...) are language-agnostic — search for them regardless of language.
 ---
 
 # jr-verify-spec
 
-Skill de verificación post-implementación. Cierra el loop del ciclo spec-driven: lee el spec implementado, recorre el código producido, evalúa criterio por criterio, detecta gaps y genera un reporte de cobertura trazable.
+Post-implementation verification skill. Closes the spec-driven cycle loop: reads the implemented spec, walks the produced code, evaluates criterion by criterion, detects gaps, and generates a traceable coverage report.
 
-No reemplaza los tests automatizados — los complementa. Su rol es dar visibilidad explícita entre lo que el spec prometía y lo que el código realmente entrega.
-
----
-
-## Paso 0 — Validar input
-
-Si el usuario ejecutó `/jr-verify-spec` **sin adjuntar un archivo `.md`**, responde:
-
-> "Para ejecutar `/jr-verify-spec` necesito el spec. Compártelo así: `/jr-verify-spec @specs/nombre-del-spec.md`"
-
-No continúes hasta tener el archivo.
+Does not replace automated tests — it complements them. Its role is to give explicit visibility between what the spec promised and what the code actually delivers.
 
 ---
 
-## Paso 1 — Leer el spec y preparar la auditoría
+## Step 0 — Validate input
 
-1. Lee el spec `.md` completo.
-2. Verifica el status:
-   - Si `Status: Draft` → advierte: "Este spec aún no fue implementado (Status: Draft). ¿Quieres verificar de todas formas lo que haya en el código?"
-   - Si `Status: Implemented` → continúa normalmente.
-3. Extrae y lista internamente todos los elementos verificables:
-   - Cada **Criterio de Aceptación** (CA-XX) de cada Requerimiento Funcional
-   - Cada **Requerimiento No Funcional** que sea verificable en código (performance, seguridad, compatibilidad)
-   - Cada ítem de la sección **Archivos Afectados** (si existe)
-4. Confirma al usuario:
-   > "Voy a auditar **X criterios de aceptación** y **Y requerimientos no funcionales** del spec `specs/[nombre].md`. Revisaré el código en busca de evidencia de cobertura."
+If the user ran `/jr-verify-spec` **without attaching a `.md` file**, respond in their language:
+> [Ask them to share the spec: `/jr-verify-spec @specs/feature-name.md`]
+
+Also read `PROJECT.md` for context.
 
 ---
 
-## Paso 2 — Recorrer el código
+## Step 1 — Read the spec and prepare the audit
 
-Para cada archivo listado en `## Archivos Afectados` del spec (o mencionado en el Diseño Técnico si la sección no existe):
-
-1. Abre y lee el archivo.
-2. Busca el comentario de trazabilidad: `// spec: specs/nombre.md` (o equivalente en el lenguaje).
-3. Identifica qué lógica implementa y a cuáles CAs podría dar cobertura.
-
-Si no hay sección `## Archivos Afectados` en el spec, infiere los archivos a partir del Diseño Técnico (sección Componentes Involucrados) y del rastreo por el directorio del proyecto.
+1. Read the complete spec `.md`.
+2. Verify the status:
+   - If `Status: Draft` → warn in user's language: "This spec hasn't been implemented yet (Status: Draft). Do you want to verify anyway whatever exists in the code?"
+   - If `Status: Implemented` → continue normally.
+3. Extract and list internally all verifiable elements:
+   - Each **Acceptance Criterion** (AC-XX) from each Functional Requirement
+   - Each **Non-Functional Requirement** that's verifiable in code
+   - Each item in the **Affected Files** section (if it exists)
+4. Confirm to the user in their conversation language:
+   > [Tell them: auditing X acceptance criteria and Y non-functional requirements from the spec]
 
 ---
 
-## Paso 3 — Evaluar cobertura por criterio
+## Step 2 — Walk the code
 
-Para cada CA, determina uno de estos estados:
+For each file listed in `## Affected Files` of the spec (or mentioned in Technical Design if the section doesn't exist):
 
-| Estado | Descripción |
+1. Open and read the file.
+2. Look for the traceability comment: `// spec: specs/name.md` (or equivalent in the language).
+3. Identify what logic implements and which ACs it could cover.
+
+If there's no `## Affected Files` section, infer files from Technical Design (Components Involved section) and by searching the project for files containing `// spec: specs/name.md`.
+
+---
+
+## Step 3 — Evaluate coverage per criterion
+
+For each AC, determine one of these statuses:
+
+| Status | Description |
 |---|---|
-| ✅ **CUBIERTO** | Hay código que implementa claramente este criterio |
-| ⚠️ **PARCIAL** | Hay implementación pero incompleta o con condiciones no manejadas |
-| ❌ **AUSENTE** | No se encontró evidencia de implementación en el código |
-| 🔍 **NO VERIFICABLE EN CÓDIGO** | El criterio requiere prueba en runtime (ej: "responde en < 200ms") |
+| ✅ **COVERED** | There is code that clearly implements this criterion |
+| ⚠️ **PARTIAL** | There is implementation but incomplete or with unhandled conditions |
+| ❌ **ABSENT** | No evidence of implementation found in the code |
+| 🔍 **NOT VERIFIABLE IN CODE** | The criterion requires runtime testing (e.g.: "responds in < 200ms") |
 
-Para los marcados como PARCIAL o AUSENTE, registra:
-- En qué archivo se esperaba la implementación
-- Qué parte específica falta
-- Sugerencia concreta de qué agregar o corregir
-
----
-
-## Paso 4 — Generar el Reporte de Cobertura
-
-```markdown
-## 🔍 Reporte de Verificación — [Nombre del Feature]
-
-**Spec:** specs/nombre-del-spec.md
-**Fecha de verificación:** YYYY-MM-DD
-**Verificado por:** jr-verify-spec
-
-### Resumen
-| Total CAs | ✅ Cubiertos | ⚠️ Parciales | ❌ Ausentes | 🔍 No verificables en código |
-|---|---|---|---|---|
-| X | X | X | X | X |
-
-**Cobertura:** X% (cubiertos / verificables en código)
+For items marked PARTIAL or ABSENT, record:
+- Which file was expected to have the implementation
+- What specific part is missing
+- Concrete suggestion of what to add or fix
 
 ---
 
-### Detalle por Requerimiento Funcional
+## Step 4 — Generate the coverage report
 
-#### RF-01: [Nombre]
-| CA | Estado | Evidencia / Gap |
-|---|---|---|
-| CA-01 | ✅ CUBIERTO | `src/services/feature.ts:45` — función `handleX` implementa el flujo completo |
-| CA-02 | ⚠️ PARCIAL | `src/components/Form.tsx:12` — valida el campo pero no maneja el caso de valor vacío |
-| CA-03 | ❌ AUSENTE | No se encontró lógica de notificación en ningún archivo afectado |
+Present the report in the user's conversation language:
 
-#### RF-02: [Nombre]
-...
+```
+[Verification Report — Feature Name]
 
----
+[Spec file]
+[Verification date]
 
-### Requerimientos No Funcionales
-| RNF | Estado | Notas |
-|---|---|---|
-| Performance: respuesta < 200ms | 🔍 NO VERIFICABLE EN CÓDIGO | Requiere prueba en runtime con datos reales |
-| Seguridad: inputs sanitizados | ✅ CUBIERTO | `sanitizeInput()` aplicado en todos los handlers del spec |
+[Summary table: Total ACs | ✅ Covered | ⚠️ Partial | ❌ Absent | 🔍 Not verifiable in code]
+[Coverage percentage: covered / verifiable in code]
 
----
+[Detail per Functional Requirement]
+  [FR-01: Name]
+  | AC | Status | Evidence / Gap |
+  | AC-01 | ✅ COVERED | `src/services/feature.ts:45` — function `handleX` implements the full flow |
+  | AC-02 | ⚠️ PARTIAL | `src/components/Form.tsx:12` — validates field but doesn't handle empty value case |
+  | AC-03 | ❌ ABSENT | No notification logic found in any affected file |
 
-### Gaps Prioritarios
-> Ordenados por impacto. Deben resolverse antes de considerar el feature completo.
+[Non-Functional Requirements]
+  | NFR | Status | Notes |
 
-**GAP-01 — [CA-03 de RF-01]: Ausencia de lógica de notificación**
-- **Impacto:** Alto — el criterio es parte del flujo principal
-- **Dónde agregar:** `src/services/notification.ts` (o crear si no existe)
-- **Qué implementar:** [descripción concreta de lo que falta]
+[Priority Gaps — ordered by impact]
+  [GAP-01 — AC-03 of FR-01: Missing notification logic]
+  - Impact: High — criterion is part of the main flow
+  - Where to add: `src/services/notification.ts`
+  - What to implement: [concrete description of what's missing]
 
-**GAP-02 — [CA-02 de RF-01]: Caso de valor vacío no manejado**
-- **Impacto:** Medio — edge case que puede producir errores silenciosos
-- **Dónde corregir:** `src/components/Form.tsx:12`
-- **Qué agregar:** validación de string vacío antes del submit
+[Traceability]
+  - Files with `spec:` comment found: [list]
+  - Related files without `spec:` comment: [list if applicable]
 
----
-
-### Trazabilidad
-- Archivos con comentario `spec:` encontrados: [lista]
-- Archivos sin comentario `spec:` pero relacionados: [lista, si aplica]
-
----
-
-### Conclusión
-[Una de estas tres:]
-
-**✅ Spec completamente cubierto** — Todos los criterios verificables en código están implementados. El feature puede considerarse listo para QA/testing.
-
-**⚠️ Spec parcialmente cubierto** — X gaps encontrados. Se recomienda resolver los gaps prioritarios antes de pasar a QA.
-
-**❌ Spec con gaps críticos** — Criterios del flujo principal sin implementar. Se recomienda volver a `/jr-exe-spec` para completar la implementación.
+[Conclusion — one of:]
+  ✅ Spec fully covered — ready for QA/testing
+  ⚠️ Spec partially covered — X gaps found, recommend resolving priority gaps before QA
+  ❌ Spec with critical gaps — main flow criteria not implemented, recommend returning to /jr-exe-spec
 ```
 
 ---
 
-## Paso 5 — Actualizar el spec
+## Step 5 — Update the spec
 
-Abre `specs/nombre-del-spec.md` y agrega entrada en `## Historial`:
+Open `specs/feature-name.md` and add entry in `## History`:
 
 ```markdown
-| [versión] | YYYY-MM-DD | Verificado | jr-verify-spec — Cobertura: X% · Gaps: Y |
+| [version] | YYYY-MM-DD | Verified | jr-verify-spec — Coverage: X% · Gaps: Y |
 ```
 
-Si la cobertura es 100% (todos los CAs verificables están cubiertos), cambia:
+If coverage is 100% (all verifiable ACs are covered), change:
 `**Status:** Implemented` → `**Status:** Verified`
 
-Si hay gaps, el status permanece en `Implemented` hasta que se corrijan y se vuelva a verificar.
+If there are gaps, status remains `Implemented` until they're fixed and re-verified.
 
 ---
 
-## Comportamiento ante casos especiales
+## Behavior for special cases
 
-**Spec sin sección `Archivos Afectados`:**
-Infiere los archivos desde la sección `Diseño Técnico > Componentes Involucrados`. Si tampoco existe, busca en el proyecto archivos que contengan el comentario `// spec: specs/nombre.md`. Informa al usuario qué archivos revisaste.
+**Spec without `Affected Files` section:**
+Infer files from Technical Design > Components Involved. If it doesn't exist either, search the project for files containing `// spec: specs/name.md`. Inform the user which files were reviewed.
 
-**Archivo listado en el spec que no existe en el proyecto:**
-Márcalo como `❌ AUSENTE` y regístralo como gap crítico.
+**File listed in spec that doesn't exist in the project:**
+Mark as `❌ ABSENT` and record as a critical gap.
 
-**Spec con muchos CAs (más de 20):**
-Agrupa por RF y presenta el reporte por secciones. No omitas ningún CA, solo organiza mejor la presentación.
+**Spec with many ACs (more than 20):**
+Group by FR and present the report in sections. Don't omit any AC.
 
-**El usuario solo quiere verificar un RF específico:**
-Acepta: "Verificaré solo RF-02". Ejecuta el mismo flujo pero acotado al RF solicitado. Nota en el reporte que la verificación fue parcial.
+**User only wants to verify a specific FR:**
+Accept it, run the same flow scoped to the requested FR. Note in the report that verification was partial.
 
 ---
 
-## Principios
+## Principles
 
-- **No asumas, verifica**: un criterio está cubierto solo si hay código que lo implemente, no si "parece que debería estar".
-- **Sé específico en los gaps**: "falta la validación" no es útil. "Falta validar `email !== ''` en `Form.tsx:23` antes de llamar a `submitForm()`" sí lo es.
-- **No bloquees el flujo**: el reporte es informativo. El usuario decide si corregir antes de continuar o documentar la deuda técnica.
-- **Cierra el loop**: el valor de este skill es hacer explícito lo que el spec prometió vs lo que el código entrega. Esa brecha, visible y documentada, es más valiosa que ignorarla.
+- **Don't assume, verify**: a criterion is covered only if there's code that implements it, not if it "seems like it should be there".
+- **Be specific about gaps**: "validation is missing" is not useful. "Missing validation of `email !== ''` in `Form.tsx:23` before calling `submitForm()`" is.
+- **Don't block the flow**: the report is informative. The user decides whether to fix before continuing or document the technical debt.
+- **Close the loop**: the value of this skill is making explicit what the spec promised vs what the code delivers. That gap, visible and documented, is more valuable than ignoring it.

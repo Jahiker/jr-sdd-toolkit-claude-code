@@ -1,291 +1,290 @@
 ---
 name: jr-init
 description: >
-  Úsalo siempre que el usuario ejecute el comando /jr-init o quiera inicializar un proyecto para trabajar con el toolkit spec-driven. Se activa con frases como "inicializar el proyecto", "configurar el proyecto", "preparar el proyecto para specs", "setup del proyecto", "init del proyecto", o cuando se mencione /jr-init. Ejecuta el /init normal de Claude Code para explorar el proyecto, y además crea el archivo PROJECT.md con stack, arquitectura, convenciones y decisiones técnicas del proyecto. Si ya existe CLAUDE.md, lo lee para extraer contexto sin modificarlo. Si PROJECT.md ya existe, lo actualiza en lugar de sobreescribirlo.
+  Use this skill whenever the user runs /jr-init or wants to initialize a project to work with the spec-driven toolkit. Triggered by phrases like "initialize the project", "set up the project", "prepare project for specs", "project setup", "init the project", or when /jr-init is mentioned. Runs the equivalent of Claude Code's /init to explore the project, and creates PROJECT.md describing the stack, architecture, conventions, and technical decisions. If CLAUDE.md already exists, reads it to extract context without modifying it. If PROJECT.md already exists, updates it instead of overwriting.
+
+language_behavior: >
+  All internal instructions are in English for consistency.
+  Always respond to the user in the same language they used to invoke this skill.
+  Generated files (PROJECT.md) must be written in the language specified by "Docs language" in PROJECT.md.
+  If PROJECT.md does not exist yet, ask the user which language they prefer for project documentation before creating it.
 ---
 
 # jr-init
 
-Skill de inicialización de proyecto. Combina el `/init` estándar de Claude Code con la creación de `PROJECT.md` — un archivo de contexto permanente que describe el proyecto para que cualquier skill del toolkit pueda entenderlo sin re-inferirlo en cada sesión.
+Project initialization skill. Combines the standard `/init` flow with the creation of `PROJECT.md` — a persistent context file that describes the project so every skill in the toolkit can understand it without re-inferring it each session.
 
 ---
 
-## Paso 0 — Verificar estado del proyecto
+## Step 0 — Check project state
 
-Antes de hacer nada, verifica:
+Before doing anything, verify:
 
-1. ¿Existe `CLAUDE.md`? → leerlo completo para extraer contexto (no modificar)
-2. ¿Existe `PROJECT.md`? → si existe, es una **actualización**, no una creación desde cero
-3. ¿Existe `specs/`? → registrar cuántos specs hay (contexto útil para el PROJECT.md)
+1. Does `CLAUDE.md` exist? → Read it fully to extract context (do not modify)
+2. Does `PROJECT.md` exist? → If yes, this is an **update**, not a fresh creation
+3. Does `specs/` exist? → Note how many specs exist (useful context for PROJECT.md)
 
-Anuncia al usuario:
+**If PROJECT.md does not exist**, ask the user:
+> "What language should I use for project documentation (PROJECT.md, specs, docs)? For example: English, Spanish, Portuguese…"
 
+Wait for the answer and use that language for all generated files. Store the choice as `**Docs language:** [language]` in PROJECT.md.
+
+Announce status to the user in their conversation language:
 ```
-🔍 Analizando el proyecto...
-- CLAUDE.md: [encontrado / no encontrado]
-- PROJECT.md: [encontrado → actualizaré / no encontrado → crearé]
-- specs/: [X specs encontrados / no existe aún]
+🔍 Analyzing project...
+- CLAUDE.md: [found / not found]
+- PROJECT.md: [found → will update / not found → will create]
+- specs/: [N specs found / does not exist yet]
+- Docs language: [language]
 ```
 
 ---
 
-## Paso 1 — Ejecutar exploración del proyecto (equivalente a /init)
+## Step 1 — Explore the project (equivalent to /init)
 
-Explora el proyecto en profundidad para entender todo lo necesario. Este es el núcleo del `/init` de Claude Code — hazlo de forma exhaustiva:
+Explore the project thoroughly. This is the core of the Claude Code `/init` — do it exhaustively:
 
-### 1.1 Estructura y configuración
-- Lee `package.json` / `composer.json` / `pyproject.toml` / `Cargo.toml` / `go.mod` (lo que exista)
-- Lee `README.md` si existe
-- Lee `CLAUDE.md` si existe (ya leído en Paso 0)
-- Detecta archivos de configuración: `.eslintrc`, `.prettierrc`, `tsconfig.json`, `vite.config.*`, `webpack.config.*`, `tailwind.config.*`, `docker-compose.yml`, `Dockerfile`, `.env.example`
-- Escanea la estructura de directorios raíz (2 niveles de profundidad)
+### 1.1 Structure and configuration
+- Read `package.json` / `composer.json` / `pyproject.toml` / `Cargo.toml` / `go.mod` (whichever exist)
+- Read `README.md` if it exists
+- Read `CLAUDE.md` if it exists (already read in Step 0)
+- Detect config files: `.eslintrc`, `.prettierrc`, `tsconfig.json`, `vite.config.*`, `webpack.config.*`, `tailwind.config.*`, `docker-compose.yml`, `Dockerfile`, `.env.example`
+- Scan the root directory structure (2 levels deep)
 
-### 1.2 Stack tecnológico
-Identifica con precisión:
-- **Lenguajes:** JS, TS, PHP, Python, etc. y sus versiones
-- **Frameworks principales:** React, Vue, Next.js, Laravel, WordPress, etc.
-- **Herramientas de build:** Vite, Webpack, etc.
-- **Estilos:** CSS, Sass, Tailwind, etc.
+### 1.2 Tech stack
+Identify precisely:
+- **Languages:** JS, TS, PHP, Python, etc. and their versions
+- **Main frameworks:** React, Vue, Next.js, Laravel, WordPress, etc.
+- **Build tools:** Vite, Webpack, etc.
+- **Styles:** CSS, Sass, Tailwind, etc.
 - **Testing:** Jest, Vitest, PHPUnit, Cypress, etc.
-- **Base de datos / ORM:** Prisma, Eloquent, Sequelize, etc.
-- **Infraestructura:** Docker, servicios externos declarados
+- **Database / ORM:** Prisma, Eloquent, Sequelize, etc.
+- **Infrastructure:** Docker, declared external services
 
-### 1.3 Arquitectura
-- ¿Monolito, monorepo, microservicios?
-- ¿App Router o Pages Router (Next.js)?
-- ¿MVC, feature-based, domain-driven?
-- ¿Dónde vive la lógica de negocio?
-- ¿Cómo se organizan los componentes/módulos?
-- ¿Hay patrones de estado? (Redux, Zustand, Pinia, etc.)
-- ¿Cómo se manejan las API calls? (fetch directo, axios, react-query, etc.)
+### 1.3 Architecture
+- Monolith, monorepo, microservices?
+- App Router or Pages Router (Next.js)?
+- MVC, feature-based, domain-driven?
+- Where does business logic live?
+- How are components/modules organized?
+- State management patterns? (Redux, Zustand, Pinia, etc.)
+- How are API calls handled? (fetch, axios, react-query, etc.)
 
-### 1.4 Convenciones detectadas
-- Naming de archivos: PascalCase, kebab-case, snake_case
-- Naming de componentes / clases / funciones
-- Estructura de imports (absolutos con alias, relativos)
-- Patrones de exports (named, default)
-- Dónde se ponen los tipos/interfaces
-- Cómo se manejan los errores
-- Cómo se organizan los tests
+### 1.4 Detected conventions
+- File naming: PascalCase, kebab-case, snake_case
+- Component / class / function naming
+- Import structure (absolute with alias, relative)
+- Export patterns (named, default)
+- Where types/interfaces live
+- Error handling patterns
+- Test organization
 
-### 1.5 Decisiones técnicas importantes
-- ¿Hay linting/formatting configurado? ¿Con qué reglas relevantes?
-- ¿Hay pre-commit hooks?
-- ¿Hay CI/CD declarado? (`.github/workflows`, etc.)
-- ¿Variables de entorno documentadas en `.env.example`?
-- ¿Hay patrones de autenticación ya establecidos?
-- ¿Hay librerías de UI (shadcn, MUI, etc.)?
-
----
-
-## Paso 2 — Leer specs existentes (si aplica)
-
-Si existe `specs/`, lee los títulos y status de todos los specs para incluirlos como contexto en `PROJECT.md`.
+### 1.5 Important technical decisions
+- Linting/formatting configured? Relevant rules?
+- Pre-commit hooks?
+- CI/CD declared? (`.github/workflows`, etc.)
+- Environment variables documented in `.env.example`?
+- Established authentication patterns?
+- UI libraries (shadcn, MUI, etc.)?
 
 ---
 
-## Paso 3 — Crear o actualizar PROJECT.md
+## Step 2 — Read existing specs (if applicable)
 
-> ⚠️ **Obligatorio. Ejecutar sin pedir confirmación. El skill NO termina hasta que PROJECT.md exista en disco.**
+If `specs/` exists, read the titles and statuses of all specs to include as context in PROJECT.md.
 
-### Si PROJECT.md NO existe → crear:
+---
+
+## Step 3 — Create or update PROJECT.md
+
+> ⚠️ **Mandatory. Execute without asking. The skill does NOT finish until PROJECT.md exists on disk.**
+> Write PROJECT.md in the language specified by the user (Docs language).
+
+### If PROJECT.md does NOT exist → create:
 
 ```markdown
 # PROJECT.md
 
-> Archivo de contexto del proyecto generado por jr-init.
-> Mantenlo actualizado cuando cambies el stack, la arquitectura o las convenciones.
-> Los skills del toolkit (jr-build-spec, jr-exe-spec, jr-verify-spec, jr-iterate-spec) leen este archivo al inicio de cada sesión.
+> Context file generated by jr-init.
+> Keep it updated when you change the stack, architecture, or conventions.
+> Toolkit skills (jr-build-spec, jr-exe-spec, jr-verify-spec, jr-iterate-spec) read this file at the start of each session.
 
 ---
 
-## Proyecto
+## Project
 
-**Nombre:** [nombre del proyecto, inferido de package.json o directorio raíz]
-**Descripción:** [descripción breve, inferida de README o package.json]
-**Última actualización de este archivo:** YYYY-MM-DD
+**Name:** [project name, inferred from package.json or root directory]
+**Description:** [brief description, inferred from README or package.json]
+**Docs language:** [language chosen by the user]
+**Last updated:** YYYY-MM-DD
 
 ---
 
-## Stack Tecnológico
+## Tech Stack
 
-### Lenguajes
-- [Lenguaje] [versión]
+### Languages
+- [Language] [version]
 
-### Frameworks y librerías principales
-- [Framework] [versión] — [rol en el proyecto]
+### Main frameworks and libraries
+- [Framework] [version] — [role in the project]
 
 ### Build & Tooling
-- [Herramienta] — [para qué]
+- [Tool] — [purpose]
 
-### Estilos
-- [CSS/Sass/Tailwind] — [configuración relevante]
+### Styles
+- [CSS/Sass/Tailwind] — [relevant configuration]
 
 ### Testing
-- [Framework de tests] — [dónde están los tests, cómo correrlos]
+- [Test framework] — [where tests live, how to run them]
 
-### Base de datos / ORM
-- [BD] + [ORM si aplica]
+### Database / ORM
+- [DB] + [ORM if applicable]
 
-### Infraestructura
-- [Docker / servicios / etc.]
-
----
-
-## Arquitectura
-
-**Tipo:** [Monolito / Monorepo / Microservicios / etc.]
-**Patrón:** [MVC / Feature-based / Domain-driven / etc.]
-
-### Estructura de directorios
-```
-[árbol de directorios relevante, 2-3 niveles]
-```
-
-### Dónde vive cada cosa
-- **Lógica de negocio:** [ruta]
-- **Componentes UI:** [ruta]
-- **API / Routes:** [ruta]
-- **Tipos / Interfaces:** [ruta]
-- **Estilos:** [ruta]
-- **Tests:** [ruta]
-- **Configuración:** [ruta]
-
-### Flujo de datos general
-[Descripción breve de cómo fluyen los datos: UI → servicio → BD, o similar]
+### Infrastructure
+- [Docker / services / etc.]
 
 ---
 
-## Convenciones
+## Architecture
+
+**Type:** [Monolith / Monorepo / Microservices / etc.]
+**Pattern:** [MVC / Feature-based / Domain-driven / etc.]
+
+### Directory structure
+```
+[relevant directory tree, 2-3 levels]
+```
+
+### Where things live
+- **Business logic:** [path]
+- **UI components:** [path]
+- **API / Routes:** [path]
+- **Types / Interfaces:** [path]
+- **Styles:** [path]
+- **Tests:** [path]
+- **Configuration:** [path]
+
+### General data flow
+[Brief description of how data flows: UI → service → DB, or similar]
+
+---
+
+## Conventions
 
 ### Naming
-- **Archivos de componentes:** [PascalCase.tsx / kebab-case.vue / etc.]
-- **Archivos de utilidades/servicios:** [kebab-case.ts / snake_case.php / etc.]
-- **Funciones:** [camelCase / snake_case]
-- **Clases:** [PascalCase]
-- **Constantes:** [UPPER_SNAKE_CASE]
-- **Variables de entorno:** [UPPER_SNAKE_CASE con prefijo si aplica]
+- **Component files:** [PascalCase.tsx / kebab-case.vue / etc.]
+- **Utility/service files:** [kebab-case.ts / snake_case.php / etc.]
+- **Functions:** [camelCase / snake_case]
+- **Classes:** [PascalCase]
+- **Constants:** [UPPER_SNAKE_CASE]
+- **Environment variables:** [UPPER_SNAKE_CASE with prefix if applicable]
 
 ### Imports
-- **Estilo:** [absolutos con alias `@/` / relativos]
-- **Alias configurados:** [lista de alias si existen]
-- **Orden de imports:** [librerías externas → internas → locales / o el que aplique]
+- **Style:** [absolute with alias `@/` / relative]
+- **Configured aliases:** [list of aliases if any]
+- **Import order:** [external libraries → internal → local / or whatever applies]
 
 ### Exports
-- [Named exports como norma / default export para componentes de página / etc.]
+- [Named exports as norm / default export for page components / etc.]
 
-### Manejo de errores
-- [Patrón usado: try/catch + next(error) / Result type / etc.]
+### Error handling
+- [Pattern used: try/catch + next(error) / Result type / etc.]
 
-### Estado global
-- [Herramienta y patrón: Zustand stores en `/store` / Pinia con composition API / etc.]
-
----
-
-## Decisiones técnicas
-
-> Decisiones importantes ya tomadas que no deben revertirse sin discusión.
-
-- **[Decisión]:** [contexto y motivo]
-- **[Decisión]:** [contexto y motivo]
+### Global state
+- [Tool and pattern: Zustand stores in `/store` / Pinia with composition API / etc.]
 
 ---
 
-## Variables de entorno requeridas
+## Technical decisions
 
-> Ver `.env.example` para valores. Aquí solo se documenta el propósito.
+> Important decisions already made that should not be reversed without discussion.
 
-| Variable | Propósito |
+- **[Decision]:** [context and reason]
+
+---
+
+## Required environment variables
+
+> See `.env.example` for values. Only purpose is documented here.
+
+| Variable | Purpose |
 |---|---|
-| `VARIABLE_NAME` | [para qué se usa] |
+| `VARIABLE_NAME` | [what it's used for] |
 
-*(Sección vacía si no hay `.env.example` o no se detectaron variables)*
+*(Empty section if no `.env.example` or no variables detected)*
 
 ---
 
-## Comandos útiles
+## Useful commands
 
 ```bash
-# Desarrollo
-[comando para levantar el proyecto]
+# Development
+[command to start the project]
 
 # Build
-[comando de build]
+[build command]
 
 # Tests
-[comando de tests]
+[test command]
 
 # Linting
-[comando de lint]
+[lint command]
 ```
 
 ---
 
-## Specs del proyecto
+## Project specs
 
-*(Actualizar con /jr-status)*
+*(Update with /jr-status)*
 
-| Spec | Status | Versión |
+| Spec | Status | Version |
 |---|---|---|
-[lista de specs existentes, o "No hay specs aún — usar /jr-build-spec para crear el primero"]
+[list of existing specs, or "No specs yet — use /jr-build-spec to create the first one"]
 
 ---
 
-## Notas adicionales
+## Additional notes
 
-[Cualquier cosa importante que un dev nuevo deba saber y no esté cubierta arriba]
+[Anything important a new dev should know that isn't covered above]
 ```
 
-### Si PROJECT.md YA existe → actualizar:
+### If PROJECT.md already exists → update:
 
-1. Lee el `PROJECT.md` actual completo.
-2. Compara con lo detectado en el Paso 1.
-3. Actualiza **solo las secciones que hayan cambiado** (nuevas dependencias, nuevas convenciones detectadas, etc.).
-4. Preserva las secciones que el usuario haya editado manualmente (especialmente "Decisiones técnicas" y "Notas adicionales").
-5. Actualiza `**Última actualización de este archivo:**` con la fecha actual.
-6. Agrega al inicio del archivo una nota:
-   ```
-   > *(Actualizado por jr-init el YYYY-MM-DD)*
-   ```
+1. Read the current `PROJECT.md` fully.
+2. Compare with what was detected in Step 1.
+3. Update **only sections that have changed** (new dependencies, newly detected conventions, etc.).
+4. Preserve sections the user has edited manually (especially "Technical decisions" and "Additional notes").
+5. Update `**Last updated:**` with today's date.
 
 ---
 
-## Paso 4 — Confirmar y orientar
+## Step 4 — Confirm and orient
+
+Respond to the user in their conversation language. Example structure:
 
 ```
-✅ Inicialización completada
+✅ [Initialization complete message]
 
-**Archivos generados/actualizados:**
-- `PROJECT.md` — contexto del proyecto para el toolkit
+[Files generated/updated]
+[Detected stack summary]
+[Architecture summary]
 
-**Stack detectado:** [resumen en una línea]
-**Arquitectura:** [resumen en una línea]
-
-**Tu toolkit está listo:**
-- `/jr-build-spec @archivo.md` — convertir un requerimiento en spec
-- `/jr-status`                 — ver estado de todos los specs
-- `/jr-exe-spec @specs/x.md`  — implementar un spec aprobado
-- `/jr-verify-spec @specs/x.md` — verificar cobertura de CAs
-- `/jr-iterate-spec @specs/x.md` — iterar sobre un spec existente
-
-**Próximo paso sugerido:**
-[Si hay specs en Draft sin ejecutar → sugerir jr-exe-spec]
-[Si no hay specs → sugerir jr-build-spec]
-[Si hay specs Implemented sin verificar → sugerir jr-verify-spec]
+[List of available toolkit commands]
+[Suggested next step based on current project state]
 ```
 
 ---
 
-## Comportamiento ante casos especiales
+## Special cases
 
-**El proyecto es muy grande (más de 50 archivos en raíz):**
-Enfócate en los archivos de configuración y los directorios de primer nivel. No intentes leer cada archivo — infiere la arquitectura desde la estructura y los configs.
+**Very large project (more than 50 files in root):**
+Focus on configuration files and first-level directories. Don't try to read every file — infer architecture from structure and configs.
 
-**No hay ningún archivo de configuración reconocible:**
-Documenta lo que puedas inferir desde la estructura de directorios y marca las secciones desconocidas como `[Por definir]`.
+**No recognizable configuration files:**
+Document what can be inferred from the directory structure and mark unknown sections as `[To be defined]`.
 
-**El proyecto es un monorepo:**
-Documenta la estructura de packages/apps por separado. Identifica qué es shared y qué es específico de cada app.
+**Monorepo:**
+Document the packages/apps structure separately. Identify what's shared and what's specific to each app.
 
-**`CLAUDE.md` tiene información que contradice lo detectado:**
-Prioriza lo que está en `CLAUDE.md` — fue escrito intencionalmente por el dev. Documenta la discrepancia en "Notas adicionales" si es relevante.
+**CLAUDE.md has information that contradicts what was detected:**
+Prioritize what's in `CLAUDE.md` — it was intentionally written by the dev. Document the discrepancy in "Additional notes" if relevant.
