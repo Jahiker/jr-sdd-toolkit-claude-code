@@ -2,21 +2,30 @@
 
 **Spec-Driven Development toolkit for Claude.ai**
 
-Transform rough requirements into professional technical specs, implement them with full traceability, and verify coverage — all from Claude.ai slash commands.
+From raw idea to verified code — a complete structured workflow for AI-assisted development. Define specs first, implement second, verify third.
 
 ---
 
 ## What is this?
 
-`jr-toolkit` is a set of Claude.ai skills and slash commands that bring structure to AI-assisted development. Instead of chatting your way through features, you define specs first, implement second, and verify third.
+`jr-toolkit` is a set of Claude.ai skills and slash commands that bring structure to every phase of software development: from the first idea to shipping verified features and fixing bugs.
 
 ```
-/jr-init          →  Project context (PROJECT.md)
-/jr-build-spec    →  Rough requirement → Polished spec
-/jr-iterate-spec  →  Iterate an existing spec
-/jr-exe-spec      →  Approved spec → Working code
-/jr-verify-spec   →  Code → Acceptance criteria coverage report
-/jr-status        →  Dashboard of all project specs
+# Starting a new project
+/jr-vision    →  Idea → Product vision document
+/jr-arch      →  Vision → Technical architecture
+/jr-roadmap   →  Architecture → Ordered feature backlog
+
+# Building features (new projects or existing)
+/jr-init      →  Project context (PROJECT.md)
+/jr-build-spec →  Rough requirement → Polished spec
+/jr-iterate-spec → Iterate an existing spec
+/jr-exe-spec  →  Approved spec → Working code
+/jr-verify-spec → Code → Acceptance criteria coverage report
+
+# Maintenance
+/jr-fix-spec  →  Bug report → Diagnosed, fixed, documented
+/jr-status    →  Dashboard of all project specs
 ```
 
 ---
@@ -49,87 +58,73 @@ After installing, **restart Claude.ai** to activate the skills.
 
 ---
 
-## Usage
+## Two workflows
 
-### 1. Initialize your project
-
-Run once per project to generate `PROJECT.md` — a persistent context file all skills read at the start of each session.
+### Starting a new project from scratch
 
 ```
-/jr-init
+/jr-vision    # 1. Define product vision from a raw idea
+/jr-arch      # 2. Define technical architecture and stack
+/jr-roadmap   # 3. Break down into ordered features with dependencies
+/jr-init      # 4. Initialize project context (PROJECT.md)
+
+# Then for each feature in roadmap order:
+/jr-build-spec @req.md
+/jr-exe-spec @specs/feature.md
+/jr-verify-spec @specs/feature.md
 ```
 
-### 2. Build a spec from a rough requirement
+### Working on an existing project
 
 ```
-/jr-build-spec @docs/new-feature.md
-```
-
-The skill analyzes your project, detects overlaps with existing specs, asks categorized questions (client & dev), and produces a professional spec in `specs/`.
-
-### 3. Iterate an existing spec
-
-```
-/jr-iterate-spec @specs/notifications.md
-
-Add email channel support alongside push.
-Users should choose their preferred channels from profile settings.
-```
-
-Semantic versioning: patch (`1.0→1.1`) for small changes, minor (`1.0→2.0`) for structural ones.
-
-### 4. Execute a spec
-
-```
-/jr-exe-spec @specs/notifications.md
-```
-
-The skill generates an explicit execution plan by phase, waits for your approval, then implements all changes with full traceability (`// spec: specs/notifications.md` in every touched file).
-
-### 5. Verify coverage
-
-```
-/jr-verify-spec @specs/notifications.md
-```
-
-Reads the spec, walks the affected files, and evaluates each acceptance criterion:
-- ✅ Covered
-- ⚠️ Partial
-- ❌ Absent
-- 🔍 Not verifiable in code (needs runtime test)
-
-Generates a coverage report with exact gap locations and suggestions.
-
-### 6. Check project status
-
-```
-/jr-status
-```
-
-Dashboard of all specs: status, version, pending items, dependencies, anomalies, and prioritized next steps.
-
----
-
-## Spec lifecycle
-
-```
-Draft → Implemented → Verified
-  ↑                      |
-  └──── jr-iterate ───────┘  (new version, back to Draft)
+/jr-init           # 1. Generate PROJECT.md from existing codebase
+/jr-build-spec @req.md  # 2. Turn requirements into specs
+/jr-exe-spec @specs/x.md    # 3. Implement
+/jr-verify-spec @specs/x.md # 4. Verify
+/jr-status         # 5. Track progress
 ```
 
 ---
 
 ## Skills reference
 
+### Project kickoff
+
 | Skill | Command | Input | Output |
 |---|---|---|---|
-| jr-init | `/jr-init` | — | `PROJECT.md` |
+| jr-vision | `/jr-vision` | Raw idea (text or `.md`) | `docs/vision.md` |
+| jr-arch | `/jr-arch` | `docs/vision.md` | `docs/architecture.md` + `PROJECT.md` |
+| jr-roadmap | `/jr-roadmap` | `docs/vision.md` + `docs/architecture.md` | `docs/roadmap.md` + `specs/` placeholders |
+| jr-init | `/jr-init` | Existing project | `PROJECT.md` |
+
+### Feature development
+
+| Skill | Command | Input | Output |
+|---|---|---|---|
 | jr-build-spec | `/jr-build-spec @req.md` | Rough requirement `.md` | `specs/feature.md` (Draft) |
-| jr-iterate-spec | `/jr-iterate-spec @specs/x.md` | Existing spec + change description | Updated spec (new version) |
-| jr-exe-spec | `/jr-exe-spec @specs/x.md` | Approved spec | Code changes + spec updated to Implemented |
-| jr-verify-spec | `/jr-verify-spec @specs/x.md` | Implemented spec | Coverage report + spec updated to Verified |
+| jr-iterate-spec | `/jr-iterate-spec @specs/x.md` | Existing spec + change | Updated spec (new version) |
+| jr-exe-spec | `/jr-exe-spec @specs/x.md` | Approved spec | Code + spec → Implemented |
+| jr-verify-spec | `/jr-verify-spec @specs/x.md` | Implemented spec | Coverage report + spec → Verified |
+
+### Maintenance & visibility
+
+| Skill | Command | Input | Output |
+|---|---|---|---|
+| jr-fix-spec | `/jr-fix-spec @specs/fixes/bug.md` | Bug report `.md` | Fix applied + documentation updated |
 | jr-status | `/jr-status` | — | Dashboard of all specs |
+
+---
+
+## Spec lifecycle
+
+```
+Pending → Draft → Implemented → Verified
+            ↑                      |
+            └──── jr-iterate ───────┘  (new version, back to Draft)
+
+Bug lifecycle:
+specs/fixes/bug.md → jr-fix-spec → Resolved (hotfix entry in original spec)
+```
 
 ---
 
@@ -141,14 +136,6 @@ JavaScript · TypeScript · PHP · React · Next.js · TanStack Query · Vue 3 �
 
 ---
 
-## Uninstall
-
-```bash
-npx jr-toolkit uninstall
-```
-
----
-
 ## CLI commands
 
 ```bash
@@ -156,6 +143,14 @@ npx jr-toolkit install     # Install all skills to ~/.claude/
 npx jr-toolkit uninstall   # Remove all skills
 npx jr-toolkit list        # List skills and their install status
 npx jr-toolkit help        # Show help
+```
+
+---
+
+## Uninstall
+
+```bash
+npx jr-toolkit uninstall
 ```
 
 ---

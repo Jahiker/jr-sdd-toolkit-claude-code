@@ -10,10 +10,14 @@ const SKILLS_SRC = path.join(__dirname, '..', 'skills');
 
 const SKILLS = [
   'jr-init',
+  'jr-vision',
+  'jr-arch',
+  'jr-roadmap',
   'jr-build-spec',
   'jr-iterate-spec',
   'jr-exe-spec',
   'jr-verify-spec',
+  'jr-fix-spec',
   'jr-status',
 ];
 
@@ -82,10 +86,14 @@ function install() {
     console.log('');
     console.log('  ' + c('bold', 'Comandos disponibles en Claude.ai:'));
     console.log('  ' + c('blue', '/jr-init') + '             → Inicializar proyecto (PROJECT.md)');
+    console.log('  ' + c('blue', '/jr-vision') + '           → Idea → Documento de visión del producto');
+    console.log('  ' + c('blue', '/jr-arch') + '             → Visión → Arquitectura técnica del sistema');
+    console.log('  ' + c('blue', '/jr-roadmap') + '          → Arquitectura → Roadmap y backlog ordenado');
     console.log('  ' + c('blue', '/jr-build-spec') + '        → Requerimiento → Spec Draft');
     console.log('  ' + c('blue', '/jr-iterate-spec') + '      → Iterar un spec existente');
     console.log('  ' + c('blue', '/jr-exe-spec') + '          → Implementar un spec');
     console.log('  ' + c('blue', '/jr-verify-spec') + '       → Verificar cobertura de CAs');
+    console.log('  ' + c('blue', '/jr-fix-spec') + '          → Diagnosticar y corregir bugs');
     console.log('  ' + c('blue', '/jr-status') + '            → Dashboard de specs');
     console.log('');
     console.log('  ' + c('yellow', 'Reinicia Claude.ai para activar los skills.'));
@@ -143,10 +151,14 @@ function showHelp() {
   console.log('');
   console.log(c('bold', 'Skills incluidos:'));
   console.log('  /jr-init           Inicializar proyecto (PROJECT.md)');
+  console.log('  /jr-vision         Idea → Documento de visión del producto');
+  console.log('  /jr-arch           Visión → Arquitectura técnica del sistema');
+  console.log('  /jr-roadmap        Arquitectura → Roadmap y backlog ordenado');
   console.log('  /jr-build-spec     Requerimiento crudo → Spec Draft');
   console.log('  /jr-iterate-spec   Iterar un spec existente');
   console.log('  /jr-exe-spec       Implementar un spec en código');
   console.log('  /jr-verify-spec    Verificar cobertura de criterios de aceptación');
+  console.log('  /jr-fix-spec       Diagnosticar y corregir bugs');
   console.log('  /jr-status         Dashboard del estado de specs del proyecto');
   console.log('');
   console.log(c('bold', 'Más info:') + ' https://github.com/YOUR_USERNAME/jr-toolkit');

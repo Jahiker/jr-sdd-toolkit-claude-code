@@ -24,10 +24,14 @@ echo ""
 
 SKILLS=(
   "jr-init"
+  "jr-vision"
+  "jr-arch"
+  "jr-roadmap"
   "jr-build-spec"
   "jr-iterate-spec"
   "jr-exe-spec"
   "jr-verify-spec"
+  "jr-fix-spec"
   "jr-status"
 )
 
