@@ -35,20 +35,20 @@ From raw idea to verified code — a complete structured workflow for AI-assiste
 ### Via npm (recommended)
 
 ```bash
-npx jr-toolkit install
+npx @jahiker/claude-toolkit install
 ```
 
 ### Via npm (global)
 
 ```bash
-npm install -g jr-toolkit
-jr-toolkit install
+npm install -g @jahiker/claude-toolkit
+claude-toolkit install
 ```
 
 ### Manual
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/jr-toolkit.git
+git clone https://github.com/Jahiker/jr-toolkit.git
 cd jr-toolkit
 chmod +x install-all.sh
 ./install-all.sh
@@ -139,10 +139,10 @@ JavaScript · TypeScript · PHP · React · Next.js · TanStack Query · Vue 3 �
 ## CLI commands
 
 ```bash
-npx jr-toolkit install     # Install all skills to ~/.claude/
-npx jr-toolkit uninstall   # Remove all skills
-npx jr-toolkit list        # List skills and their install status
-npx jr-toolkit help        # Show help
+npx @jahiker/claude-toolkit install     # Install all skills to ~/.claude/
+npx @jahiker/claude-toolkit uninstall   # Remove all skills
+npx @jahiker/claude-toolkit list        # List skills and their install status
+npx @jahiker/claude-toolkit help        # Show help
 ```
 
 ---
@@ -150,7 +150,7 @@ npx jr-toolkit help        # Show help
 ## Uninstall
 
 ```bash
-npx jr-toolkit uninstall
+npx @jahiker/claude-toolkit uninstall
 ```
 
 ---
