@@ -1,6 +1,6 @@
 {
   "name": "jr-toolkit",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Spec-Driven Development toolkit for Claude.ai — transform rough requirements into professional specs, implement them, and verify coverage.",
   "keywords": [
     "claude",
