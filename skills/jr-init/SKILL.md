@@ -1,290 +1,63 @@
 ---
 name: jr-init
-description: >
-  Use this skill whenever the user runs /jr-init or wants to initialize a project to work with the spec-driven toolkit. Triggered by phrases like "initialize the project", "set up the project", "prepare project for specs", "project setup", "init the project", or when /jr-init is mentioned. Runs the equivalent of Claude Code's /init to explore the project, and creates PROJECT.md describing the stack, architecture, conventions, and technical decisions. If CLAUDE.md already exists, reads it to extract context without modifying it. If PROJECT.md already exists, updates it instead of overwriting.
-
-language_behavior: >
-  All internal instructions are in English for consistency.
-  Always respond to the user in the same language they used to invoke this skill.
-  Generated files (PROJECT.md) must be written in the language specified by "Docs language" in PROJECT.md.
-  If PROJECT.md does not exist yet, ask the user which language they prefer for project documentation before creating it.
+description: Use when the user runs /jr-init or wants to initialize a project for the spec-driven toolkit. Triggers: "initialize project", "setup project", "init project", /jr-init.
 ---
 
 # jr-init
 
-Project initialization skill. Combines the standard `/init` flow with the creation of `PROJECT.md` — a persistent context file that describes the project so every skill in the toolkit can understand it without re-inferring it each session.
+Initialize a project for the jr-toolkit. Creates or updates PROJECT.md with stack, architecture, conventions and the `## Toolkit Context (jr-toolkit)` block that all other skills read.
 
----
+## Rules
+- Respond to user in their conversation language.
+- Write PROJECT.md in the Docs language chosen by the user.
+- If PROJECT.md exists → update only changed sections, preserve manual edits.
+- If PROJECT.md does not exist → ask user for preferred Docs language first, then create.
 
-## Step 0 — Check project state
+## Steps
 
-Before doing anything, verify:
+**0. Check state**
+Verify existence of: CLAUDE.md (read, don't modify), PROJECT.md (update vs create), specs/ (count specs). Announce findings in user's language.
 
-1. Does `CLAUDE.md` exist? → Read it fully to extract context (do not modify)
-2. Does `PROJECT.md` exist? → If yes, this is an **update**, not a fresh creation
-3. Does `specs/` exist? → Note how many specs exist (useful context for PROJECT.md)
+**1. Explore project**
+Read: package.json / composer.json / pyproject.toml, README.md, CLAUDE.md, config files (.eslintrc, tsconfig.json, vite.config.*, tailwind.config.*, docker-compose.yml, .env.example). Scan root structure 2 levels deep.
 
-**If PROJECT.md does not exist**, ask the user:
-> "What language should I use for project documentation (PROJECT.md, specs, docs)? For example: English, Spanish, Portuguese…"
+Identify: languages + versions, frameworks, build tools, styles, testing, DB/ORM, infrastructure, naming conventions, import style, export patterns, error handling, state management.
 
-Wait for the answer and use that language for all generated files. Store the choice as `**Docs language:** [language]` in PROJECT.md.
+**2. Create or update PROJECT.md**
 
-Announce status to the user in their conversation language:
+> ⚠️ Mandatory. Write file without asking. Skill does not finish until PROJECT.md exists on disk.
+
+Include these sections (written in Docs language):
+- Project name, description, Docs language, last updated date
+- Tech Stack (languages, frameworks, build, styles, testing, DB, infra)
+- Architecture (type, pattern, directory structure, where things live, data flow)
+- Conventions (naming, imports, exports, error handling, state)
+- Technical decisions (already-made decisions not to reverse)
+- Required environment variables (from .env.example)
+- Useful commands (dev, build, test, lint)
+- Project specs (table from specs/ or "No specs yet")
+- Additional notes
+
+**Critical — always include this block** (in English regardless of Docs language):
 ```
-🔍 Analyzing project...
-- CLAUDE.md: [found / not found]
-- PROJECT.md: [found → will update / not found → will create]
-- specs/: [N specs found / does not exist yet]
-- Docs language: [language]
-```
+## Toolkit Context (jr-toolkit)
 
----
+> This section is read by all jr-* skills at session start. Keep it accurate.
 
-## Step 1 — Explore the project (equivalent to /init)
-
-Explore the project thoroughly. This is the core of the Claude Code `/init` — do it exhaustively:
-
-### 1.1 Structure and configuration
-- Read `package.json` / `composer.json` / `pyproject.toml` / `Cargo.toml` / `go.mod` (whichever exist)
-- Read `README.md` if it exists
-- Read `CLAUDE.md` if it exists (already read in Step 0)
-- Detect config files: `.eslintrc`, `.prettierrc`, `tsconfig.json`, `vite.config.*`, `webpack.config.*`, `tailwind.config.*`, `docker-compose.yml`, `Dockerfile`, `.env.example`
-- Scan the root directory structure (2 levels deep)
-
-### 1.2 Tech stack
-Identify precisely:
-- **Languages:** JS, TS, PHP, Python, etc. and their versions
-- **Main frameworks:** React, Vue, Next.js, Laravel, WordPress, etc.
-- **Build tools:** Vite, Webpack, etc.
-- **Styles:** CSS, Sass, Tailwind, etc.
-- **Testing:** Jest, Vitest, PHPUnit, Cypress, etc.
-- **Database / ORM:** Prisma, Eloquent, Sequelize, etc.
-- **Infrastructure:** Docker, declared external services
-
-### 1.3 Architecture
-- Monolith, monorepo, microservices?
-- App Router or Pages Router (Next.js)?
-- MVC, feature-based, domain-driven?
-- Where does business logic live?
-- How are components/modules organized?
-- State management patterns? (Redux, Zustand, Pinia, etc.)
-- How are API calls handled? (fetch, axios, react-query, etc.)
-
-### 1.4 Detected conventions
-- File naming: PascalCase, kebab-case, snake_case
-- Component / class / function naming
-- Import structure (absolute with alias, relative)
-- Export patterns (named, default)
-- Where types/interfaces live
-- Error handling patterns
-- Test organization
-
-### 1.5 Important technical decisions
-- Linting/formatting configured? Relevant rules?
-- Pre-commit hooks?
-- CI/CD declared? (`.github/workflows`, etc.)
-- Environment variables documented in `.env.example`?
-- Established authentication patterns?
-- UI libraries (shadcn, MUI, etc.)?
-
----
-
-## Step 2 — Read existing specs (if applicable)
-
-If `specs/` exists, read the titles and statuses of all specs to include as context in PROJECT.md.
-
----
-
-## Step 3 — Create or update PROJECT.md
-
-> ⚠️ **Mandatory. Execute without asking. The skill does NOT finish until PROJECT.md exists on disk.**
-> Write PROJECT.md in the language specified by the user (Docs language).
-
-### If PROJECT.md does NOT exist → create:
-
-```markdown
-# PROJECT.md
-
-> Context file generated by jr-init.
-> Keep it updated when you change the stack, architecture, or conventions.
-> Toolkit skills (jr-build-spec, jr-exe-spec, jr-verify-spec, jr-iterate-spec) read this file at the start of each session.
-
----
-
-## Project
-
-**Name:** [project name, inferred from package.json or root directory]
-**Description:** [brief description, inferred from README or package.json]
-**Docs language:** [language chosen by the user]
-**Last updated:** YYYY-MM-DD
-
----
-
-## Tech Stack
-
-### Languages
-- [Language] [version]
-
-### Main frameworks and libraries
-- [Framework] [version] — [role in the project]
-
-### Build & Tooling
-- [Tool] — [purpose]
-
-### Styles
-- [CSS/Sass/Tailwind] — [relevant configuration]
-
-### Testing
-- [Test framework] — [where tests live, how to run them]
-
-### Database / ORM
-- [DB] + [ORM if applicable]
-
-### Infrastructure
-- [Docker / services / etc.]
-
----
-
-## Architecture
-
-**Type:** [Monolith / Monorepo / Microservices / etc.]
-**Pattern:** [MVC / Feature-based / Domain-driven / etc.]
-
-### Directory structure
-```
-[relevant directory tree, 2-3 levels]
+**Docs language:** [chosen language]
+**Stack:** [one-line summary]
+**Architecture:** [one-line summary]
+**Conventions:** [one-line summary]
+**Specs dir:** specs/
+**Fixes dir:** specs/fixes/
+**Docs dir:** docs/
 ```
 
-### Where things live
-- **Business logic:** [path]
-- **UI components:** [path]
-- **API / Routes:** [path]
-- **Types / Interfaces:** [path]
-- **Styles:** [path]
-- **Tests:** [path]
-- **Configuration:** [path]
-
-### General data flow
-[Brief description of how data flows: UI → service → DB, or similar]
-
----
-
-## Conventions
-
-### Naming
-- **Component files:** [PascalCase.tsx / kebab-case.vue / etc.]
-- **Utility/service files:** [kebab-case.ts / snake_case.php / etc.]
-- **Functions:** [camelCase / snake_case]
-- **Classes:** [PascalCase]
-- **Constants:** [UPPER_SNAKE_CASE]
-- **Environment variables:** [UPPER_SNAKE_CASE with prefix if applicable]
-
-### Imports
-- **Style:** [absolute with alias `@/` / relative]
-- **Configured aliases:** [list of aliases if any]
-- **Import order:** [external libraries → internal → local / or whatever applies]
-
-### Exports
-- [Named exports as norm / default export for page components / etc.]
-
-### Error handling
-- [Pattern used: try/catch + next(error) / Result type / etc.]
-
-### Global state
-- [Tool and pattern: Zustand stores in `/store` / Pinia with composition API / etc.]
-
----
-
-## Technical decisions
-
-> Important decisions already made that should not be reversed without discussion.
-
-- **[Decision]:** [context and reason]
-
----
-
-## Required environment variables
-
-> See `.env.example` for values. Only purpose is documented here.
-
-| Variable | Purpose |
-|---|---|
-| `VARIABLE_NAME` | [what it's used for] |
-
-*(Empty section if no `.env.example` or no variables detected)*
-
----
-
-## Useful commands
-
-```bash
-# Development
-[command to start the project]
-
-# Build
-[build command]
-
-# Tests
-[test command]
-
-# Linting
-[lint command]
-```
-
----
-
-## Project specs
-
-*(Update with /jr-status)*
-
-| Spec | Status | Version |
-|---|---|---|
-[list of existing specs, or "No specs yet — use /jr-build-spec to create the first one"]
-
----
-
-## Additional notes
-
-[Anything important a new dev should know that isn't covered above]
-```
-
-### If PROJECT.md already exists → update:
-
-1. Read the current `PROJECT.md` fully.
-2. Compare with what was detected in Step 1.
-3. Update **only sections that have changed** (new dependencies, newly detected conventions, etc.).
-4. Preserve sections the user has edited manually (especially "Technical decisions" and "Additional notes").
-5. Update `**Last updated:**` with today's date.
-
----
-
-## Step 4 — Confirm and orient
-
-Respond to the user in their conversation language. Example structure:
-
-```
-✅ [Initialization complete message]
-
-[Files generated/updated]
-[Detected stack summary]
-[Architecture summary]
-
-[List of available toolkit commands]
-[Suggested next step based on current project state]
-```
-
----
+**3. Confirm**
+Respond in user's language with: files created/updated, stack detected, architecture summary, list of available toolkit commands, suggested next step based on project state.
 
 ## Special cases
-
-**Very large project (more than 50 files in root):**
-Focus on configuration files and first-level directories. Don't try to read every file — infer architecture from structure and configs.
-
-**No recognizable configuration files:**
-Document what can be inferred from the directory structure and mark unknown sections as `[To be defined]`.
-
-**Monorepo:**
-Document the packages/apps structure separately. Identify what's shared and what's specific to each app.
-
-**CLAUDE.md has information that contradicts what was detected:**
-Prioritize what's in `CLAUDE.md` — it was intentionally written by the dev. Document the discrepancy in "Additional notes" if relevant.
+- Large project (50+ root files): focus on config files and first-level dirs only.
+- No config files found: document what's inferable, mark unknowns as `[To be defined]`.
+- Monorepo: document packages/apps separately, identify shared vs specific.
+- CLAUDE.md contradicts detected info: prioritize CLAUDE.md, note discrepancy in Additional notes.
