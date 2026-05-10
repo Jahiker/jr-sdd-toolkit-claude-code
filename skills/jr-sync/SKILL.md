@@ -86,7 +86,7 @@ For each approved category:
 - **Stack**: update Tech Stack section table. Append new entries, remove vanished ones, update versions.
 - **Architecture**: update Architecture section (directory tree, modules table). Note major changes (e.g. build tool migration) in Additional notes.
 - **Conventions**: update Conventions section.
-- **Toolkit Context**: update the three one-line summaries. Preserve Docs language and dirs paths.
+- **Toolkit Context**: update the three one-line summaries (Stack, Architecture, Conventions). **Preserve Docs language, Mode, and all dir paths** (Specs dir, Sketches dir, Fixes dir, Docs dir) — these are toolkit config, not derived from codebase state.
 - **Specs table**: rebuild Project specs table from actual specs/ folder. Read each spec's frontmatter for current Status.
 - **Other**: update Required env vars, Useful commands.
 

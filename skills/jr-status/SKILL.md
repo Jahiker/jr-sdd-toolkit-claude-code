@@ -14,13 +14,15 @@ Scan all specs in specs/, classify by status, generate an actionable dashboard. 
 
 ## Step 1 — Read and classify specs
 
-For each .md in specs/ (main dir + fixes/ separately), read: Status, Version, Date, Related specs, title, Pending Questions section ([PENDING] items?), Delta section, Affected Files count, last History entry.
+For each .md in specs/ (main dir + sketches/ + fixes/, each scanned separately), read: Status, Version, Date, Related specs, title, Pending Questions section ([PENDING] items?), Delta section, Affected Files count, last History entry. For sketches, also read the `Readiness Report` block if present (overall score).
 
 **Status classification:**
 | Label | Criterion |
 |---|---|
 | ⏳ PENDING | Status: Pending (roadmap placeholder, spec not built yet) |
+| 📝 SKETCH | File in specs/sketches/ — built with --dev and scored <60 |
 | 🟡 DRAFT | Status: Draft, no critical [PENDING] |
+| 🟠 NEEDS WORK | Status: Draft with `Readiness: Needs work` flag (score 60–74 in --dev) |
 | 🔴 BLOCKED | Status: Draft + [PENDING] in FRs or Technical Design |
 | 🔵 IMPLEMENTED | Status: Implemented |
 | ✅ VERIFIED | Status: Verified |
@@ -30,9 +32,9 @@ For each .md in specs/ (main dir + fixes/ separately), read: Status, Version, Da
 
 ```
 📊 [Project name] — Spec Status
-[Date] | Total specs: N
+[Date] | Total specs: N | Mode: [default|dev]
 
-Summary: ✅ N | 🔵 N | 🟡 N | ⏳ N | 🔴 N | ⚠️ N
+Summary: ✅ N | 🔵 N | 🟡 N | 🟠 N | ⏳ N | 📝 N | 🔴 N | ⚠️ N
 
 --- Specs by status ---
 
@@ -45,8 +47,14 @@ Summary: ✅ N | 🔵 N | 🟡 N | ⏳ N | 🔴 N | ⚠️ N
 🟡 DRAFT
 | Spec | Version | Date | Pending | → /jr-exe-spec |
 
+🟠 NEEDS WORK (--dev only)
+| Spec | Version | Score | Top blocker | → /jr-build-spec --dev to improve |
+
 ⏳ PENDING
 | Spec | Roadmap # | Depends on | → /jr-build-spec |
+
+📝 SKETCH (--dev only, in specs/sketches/)
+| Spec | Score | Top blocker | → /jr-build-spec @specs/sketches/x.md --dev to iterate |
 
 🔴 BLOCKED
 | Spec | Version | Unresolved items | → Resolve then /jr-exe-spec |
@@ -69,7 +77,7 @@ Summary: ✅ N | 🔵 N | 🟡 N | ⏳ N | 🔴 N | ⚠️ N
 4. [ITERATION] ...
 
 --- Stats ---
-Total: N | Verified: X% | Unverified implemented: N | Blocked: N | Open fixes: N
+Total: N (incl. M sketches) | Verified: X% | Unverified implemented: N | Blocked: N | Open fixes: N
 Most recent: `specs/name.md` — N days ago
 ```
 

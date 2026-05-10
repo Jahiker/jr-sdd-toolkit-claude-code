@@ -14,10 +14,7 @@
     "claude-skills",
     "developer-tools"
   ],
-  "author": {
-    "name": "Jahiker",
-    "url": "https://jahiker.github.io/jahiker"
-  },
+  "author": "Jahiker",
   "license": "MIT",
   "repository": {
     "type": "git",

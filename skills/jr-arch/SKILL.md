@@ -62,7 +62,7 @@ History table
 ```
 
 **3. Update PROJECT.md**
-Update Toolkit Context block with: Docs language, Stack (one-line), Architecture (one-line), Conventions (one-line). If PROJECT.md doesn't exist, create it using jr-init template.
+Update Toolkit Context block with: Docs language, Stack (one-line), Architecture (one-line), Conventions (one-line). **Preserve `Mode:` and dir paths** (`Specs dir`, `Sketches dir`, `Fixes dir`, `Docs dir`) if they exist — do not overwrite. If PROJECT.md doesn't exist, create it using jr-init template (which includes `Mode: default` and all dir paths).
 
 **4. Confirm + log progress**
 Respond in user's language with stack summary and next step: `/jr-roadmap`.

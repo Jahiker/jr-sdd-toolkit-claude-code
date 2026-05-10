@@ -2,7 +2,7 @@
 
 **Spec-Driven Development toolkit for Claude Code**
 
-From raw idea to verified code — a complete structured workflow for AI-assisted development. Define specs first, implement second, verify third. With session continuity built-in.
+From raw idea to verified code — a complete structured workflow for AI-assisted development. Define specs first, implement second, verify third. With session continuity built-in and **optional dev mode for senior-level rigor**.
 
 [![npm version](https://img.shields.io/npm/v/@jahiker/claude-toolkit.svg)](https://www.npmjs.com/package/@jahiker/claude-toolkit)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -17,13 +17,13 @@ From raw idea to verified code — a complete structured workflow for AI-assiste
 # Starting a new project
 /jr-vision         →  Idea → Product vision document
 /jr-arch           →  Vision → Technical architecture
-/jr-roadmap       →  Architecture → Ordered feature backlog
+/jr-roadmap        →  Architecture → Ordered feature backlog
 
 # Building features (new projects or existing)
-/jr-init           →  Project context (PROJECT.md)
-/jr-build-spec     →  Rough requirement → Polished spec
+/jr-init           →  Project context (PROJECT.md). Accepts --dev / --no-dev.
+/jr-build-spec     →  Rough requirement → Polished spec. Accepts --dev.
 /jr-iterate-spec   →  Iterate an existing spec
-/jr-exe-spec       →  Approved spec → Working code
+/jr-exe-spec       →  Approved spec → Working code. Accepts --dev.
 /jr-verify-spec    →  Code → Acceptance criteria coverage report
 
 # Maintenance & continuity
@@ -32,6 +32,62 @@ From raw idea to verified code — a complete structured workflow for AI-assiste
 /jr-sync           →  Detect and reconcile drift in PROJECT.md
 /jr-progress       →  Read or append narrative progress log
 ```
+
+---
+
+## Modes (new in 1.8.0)
+
+The toolkit now has two operating modes:
+
+| Mode | Behavior | Best for |
+|---|---|---|
+| **`default`** | Fluid flow. Skills do their work without additional gates. | Prototypes, exploration, personal projects, quick experiments. |
+| **`dev`** | Critical modifier skills (`jr-build-spec`, `jr-exe-spec`) apply additional validations like a "code review by a second senior". | Serious projects where the cost of errors is high. |
+
+### Setting the mode
+
+The mode lives in `PROJECT.md` and applies project-wide:
+
+```bash
+/jr-init --dev      # set Mode: dev
+/jr-init --no-dev   # set Mode: default (also the default if no flag)
+/jr-init            # preserves existing Mode if PROJECT.md exists, else default
+```
+
+You can also override per-invocation:
+
+```bash
+/jr-build-spec @req.md --dev      # one-shot dev mode
+/jr-exe-spec @specs/x.md --no-dev # bypass dev mode for this run
+```
+
+### What `--dev` adds (Phase 1 — v1.8.0)
+
+**`jr-build-spec --dev`** runs a 6-dimension readiness rubric after building the spec:
+
+- 🎯 Clarity of intent (15%)
+- 🧪 Testability of ACs (25%)
+- 🚧 Boundary definition (10%)
+- 🔗 Dependency awareness (15%)
+- ⚠️ Risk identification (15%)
+- 🏗️ Architectural fit (20%)
+
+| Score | Outcome |
+|---|---|
+| <60 | ❌ Saved as `specs/sketches/[slug].md`. Blocks `/jr-exe-spec --dev`. |
+| 60–74 | ⚠️ Saved as Draft + `Needs work` flag. Blocks `/jr-exe-spec --dev`. |
+| 75–89 | ✅ Saved as normal Draft. |
+| ≥90 | 🌟 Saved as Draft with Excellent badge. |
+
+**`jr-exe-spec --dev`** asks 3 questions before showing the execution plan:
+
+1. **Files-to-touch:** which files do you expect to create/modify?
+2. **Risk check:** what's the riskiest part of this implementation? (concrete, ≥10 words)
+3. **Rollback check:** how would you revert if this fails in production?
+
+Vague answers (generic terms, less than X words, "git revert" when the spec touches DB) are rejected with concrete examples. Up to 2 reformulations, then explicit override (logged to History + progress).
+
+> Future phases: 1.9.0 will add `--dev` to `/jr-verify-spec` (E2E enforcement). 1.10.0 will extend it to `/jr-fix-spec` and `/jr-iterate-spec`.
 
 ---
 
@@ -71,7 +127,7 @@ After installing, **restart Claude Code** to activate the skills.
 /jr-vision    # 1. Define product vision from a raw idea
 /jr-arch      # 2. Define technical architecture and stack
 /jr-roadmap   # 3. Break down into ordered features with dependencies
-/jr-init      # 4. Initialize project context (PROJECT.md)
+/jr-init      # 4. Initialize project context (add --dev for strict mode)
 
 # Then for each feature in roadmap order:
 /jr-build-spec       # Direct chat input or @req.md
@@ -83,8 +139,8 @@ After installing, **restart Claude Code** to activate the skills.
 
 ```
 /jr-progress                   # 0. Recover context from previous sessions
-/jr-init                       # 1. Generate PROJECT.md from existing codebase
-/jr-build-spec                 # 2. Turn requirement (chat or @req.md) into spec
+/jr-init                       # 1. Generate PROJECT.md (--dev for strict mode)
+/jr-build-spec                 # 2. Turn requirement into spec
 /jr-exe-spec @specs/x.md       # 3. Implement
 /jr-verify-spec @specs/x.md    # 4. Verify
 /jr-status                     # 5. Track progress
@@ -101,64 +157,60 @@ After installing, **restart Claude Code** to activate the skills.
 |---|---|---|---|
 | jr-vision | `/jr-vision` | Raw idea (text or `.md`) | `docs/vision.md` |
 | jr-arch | `/jr-arch` | `docs/vision.md` | `docs/architecture.md` + `PROJECT.md` |
-| jr-roadmap | `/jr-roadmap` | `docs/vision.md` + `docs/architecture.md` | `docs/roadmap.md` + `specs/` placeholders |
-| jr-init | `/jr-init` | Existing project | `PROJECT.md` |
+| jr-roadmap | `/jr-roadmap` | Vision + Architecture | `docs/roadmap.md` + spec placeholders |
+| jr-init | `/jr-init [--dev|--no-dev]` | Existing project | `PROJECT.md` with mode set |
 
 ### Feature development
 
 | Skill | Command | Input | Output |
 |---|---|---|---|
-| jr-build-spec | `/jr-build-spec` | Direct chat text **or** `@req.md` | `specs/feature.md` (Draft) |
+| jr-build-spec | `/jr-build-spec [--dev|--no-dev]` | Chat text **or** `@req.md` | `specs/feature.md` (Draft) or `specs/sketches/feature.md` (Sketch) |
 | jr-iterate-spec | `/jr-iterate-spec @specs/x.md` | Existing spec + change | Updated spec (new version) |
-| jr-exe-spec | `/jr-exe-spec @specs/x.md` | Approved spec | Code + spec → Implemented |
+| jr-exe-spec | `/jr-exe-spec @specs/x.md [--dev|--no-dev]` | Approved spec | Code + spec → Implemented |
 | jr-verify-spec | `/jr-verify-spec @specs/x.md` | Implemented spec | Coverage report + spec → Verified |
 
 ### Maintenance, visibility & continuity
 
 | Skill | Command | Input | Output |
 |---|---|---|---|
-| jr-fix-spec | `/jr-fix-spec @specs/fixes/bug.md` | Bug report `.md` | Fix applied + documentation updated |
+| jr-fix-spec | `/jr-fix-spec @specs/fixes/bug.md` | Bug report | Fix applied + docs updated |
 | jr-status | `/jr-status` | — | Dashboard of all specs |
-| jr-sync | `/jr-sync` | Existing project + PROJECT.md | Drift report + updated PROJECT.md |
-| jr-progress | `/jr-progress` | — (or `--note "..."`) | Recent log entries / appended note |
+| jr-sync | `/jr-sync` | Project + PROJECT.md | Drift report + updated PROJECT.md |
+| jr-progress | `/jr-progress [--note "..."]` | — | Recent log entries / appended note |
 
 ---
 
 ## Spec lifecycle
 
 ```
-Pending → Draft → Implemented → Verified
-            ↑                      |
-            └──── jr-iterate ──────┘  (new version, back to Draft)
+                              ┌── (--dev only) ──┐
+                              ↓                   ↑
+Pending → Sketch → Draft → Implemented → Verified
+                    ↑                       |
+                    └──── jr-iterate ───────┘  (new version, back to Draft)
 
-Bug lifecycle:
-specs/fixes/bug.md → jr-fix-spec → Resolved (hotfix entry in original spec)
+Bug lifecycle:    specs/fixes/bug.md → jr-fix-spec → Resolved
+Drift lifecycle:  jr-sync detects PROJECT.md ↔ codebase divergence
+Continuity:       all modifier skills append to docs/progress.md
 ```
+
+A `Sketch` is a spec that didn't pass the readiness rubric (score <60 in `--dev` mode). It lives in `specs/sketches/` and must be iterated until it passes.
 
 ---
 
-## Session continuity (new in 1.7.0)
+## Session continuity
 
-Every modifier skill automatically appends an entry to `docs/progress.md` — a chronological narrative log of what's been done in the project. When you return to a project after time away, run `/jr-progress` to recover context fast without reading every spec.
+Every modifier skill automatically appends an entry to `docs/progress.md` — a chronological narrative log of what's been done in the project. When you return after time away, run `/jr-progress` to recover context fast.
 
 ```bash
-# Read recent activity
-/jr-progress
-
-# Show full log
-/jr-progress --all
-
-# Filter by date or target
-/jr-progress --since=2026-04-01
-/jr-progress --target=auth-oauth
-
-# Add a manual note (client decisions, blockers, etc.)
-/jr-progress --note "Stripe key arrives Friday; payment-flow blocked until then"
+/jr-progress                                  # last 10 entries
+/jr-progress --all                            # full log
+/jr-progress --since=2026-04-01               # filter by date
+/jr-progress --target=auth-oauth              # filter by spec/doc
+/jr-progress --note "Stripe key arrives Friday — payment-flow blocked"
 ```
 
-The log is append-only and complements `/jr-status`:
-- `/jr-status` answers **what's the state of each spec right now?**
-- `/jr-progress` answers **what happened recently and why?**
+`/jr-progress` answers **what happened recently and why**; `/jr-status` answers **what's the state of each spec right now**. Complementary, not redundant.
 
 ---
 
@@ -200,7 +252,7 @@ npx @jahiker/claude-toolkit uninstall
 
 ## Contributing
 
-Issues and PRs welcome at [github.com/Jahiker/jr-sdd-toolkit-claude-code](https://github.com/Jahiker/jr-sdd-toolkit-claude-code). If you find a skill behaving unexpectedly in a real project, open an issue with the context — real-world feedback is what makes these skills better.
+Issues and PRs welcome at [github.com/Jahiker/jr-sdd-toolkit-claude-code](https://github.com/Jahiker/jr-sdd-toolkit-claude-code). Real-world feedback on the dev mode rubric calibration is especially welcome — if scores feel too lenient or too strict in your projects, open an issue with examples.
 
 ---
 

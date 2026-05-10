@@ -1,37 +1,57 @@
 # /jr-init
 
-Inicializa un proyecto para trabajar con el toolkit spec-driven. Explora el proyecto en profundidad y crea `PROJECT.md` con stack, arquitectura y convenciones — contexto permanente que todos los skills del toolkit usan en cada sesión.
+Inicializa un proyecto para el toolkit. Crea o actualiza `PROJECT.md` con stack, arquitectura, convenciones y el bloque `Toolkit Context` que todas las demás skills leen.
 
 ## Uso
 
 ```
+# Modo default (sin gates de validación extra)
 /jr-init
+
+# Modo dev (activa validaciones estrictas en build-spec y exe-spec)
+/jr-init --dev
+
+# Forzar modo default sobre un proyecto que ya está en dev
+/jr-init --no-dev
 ```
 
-No requiere argumentos. Se ejecuta en la raíz del proyecto.
+## Sobre el `Mode`
 
-## Descripción
+A partir de v1.8.0 el toolkit tiene dos modos de operación, definidos en el bloque `Toolkit Context` de `PROJECT.md`:
 
-1. **Verifica** si existen `CLAUDE.md`, `PROJECT.md` y `specs/`
-2. **Explora** el proyecto: estructura, stack, frameworks, convenciones, decisiones técnicas, variables de entorno, comandos
-3. **Lee `CLAUDE.md`** si existe — extrae contexto sin modificarlo
-4. **Crea `PROJECT.md`** con toda la información relevante del proyecto
-5. **Si `PROJECT.md` ya existe** — lo actualiza preservando ediciones manuales
-6. **Orienta** sobre el siguiente paso según el estado actual del proyecto
+| Mode | Comportamiento |
+|---|---|
+| `default` | Flujo fluido. Las skills hacen su trabajo sin gates adicionales. Ideal para prototipos, exploraciones, proyectos personales pequeños. |
+| `dev` | Las skills modificadoras críticas (`jr-build-spec`, `jr-exe-spec`) aplican validaciones adicionales tipo "code review por un segundo senior". Diseñado para proyectos serios donde el costo de errores es alto. |
 
-## Por qué existe
+El modo se persiste en `PROJECT.md` y aplica a todo el proyecto. Para invocaciones puntuales puedes hacer override:
 
-Claude no recuerda entre sesiones. Sin `PROJECT.md`, cada skill tiene que re-inferir el stack y las convenciones del proyecto en cada conversación, con riesgo de inconsistencias. `PROJECT.md` es la memoria persistente del proyecto — se crea una vez y se actualiza cuando cambia algo importante.
+```
+/jr-build-spec @req.md --dev      # forzar dev en una invocación
+/jr-build-spec @req.md --no-dev   # forzar default en una invocación
+```
 
-## Cuándo volver a ejecutarlo
+## Cómo funciona
 
-- Al agregar una dependencia o framework importante al proyecto
-- Al cambiar convenciones de naming o estructura
-- Al incorporar un dev nuevo al equipo
-- Al cambiar de arquitectura
+1. **Detecta** el estado del proyecto: PROJECT.md existente, CLAUDE.md, specs/.
+2. **Parsea** el flag `--dev` / `--no-dev` (si se proporciona).
+3. **Explora** stack, arquitectura, convenciones desde los archivos de configuración.
+4. **Crea o actualiza** PROJECT.md preservando ediciones manuales.
+5. **Escribe** el bloque `Toolkit Context` con el campo `Mode:` correctamente.
+6. **Confirma** mostrando qué se creó/actualizó, el modo activo, y el siguiente paso sugerido.
+
+## Resolución de modo (resumen)
+
+| Flag pasado | PROJECT.md existía con Mode | Resultado |
+|---|---|---|
+| `--dev` | (cualquiera) | `Mode: dev` |
+| `--no-dev` | (cualquiera) | `Mode: default` |
+| (ninguno) | tenía `Mode:` | preserva el valor existente |
+| (ninguno) | sin `Mode:` o sin PROJECT.md | `Mode: default` |
 
 ## Notas
 
-- No modifica `CLAUDE.md` — solo lo lee.
-- Si `PROJECT.md` ya existe, actualiza solo lo que cambió y preserva ediciones manuales.
-- El toolkit completo estará disponible al finalizar: `jr-build-spec`, `jr-exe-spec`, `jr-verify-spec`, `jr-iterate-spec`, `jr-status`.
+- Modo `default` es el comportamiento clásico — sin cambios respecto a v1.7.0 y anteriores.
+- Modo `dev` se diseñó pensando en devs senior que quieren forzar rigor en cada etapa.
+- Cambiar el modo después: vuelve a correr `/jr-init --dev` o `/jr-init --no-dev`.
+- `PROJECT.md` viejo sin campo `Mode:` se actualiza automáticamente la próxima vez que corras `/jr-init` (con valor `default` por compatibilidad).
