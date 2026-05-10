@@ -52,5 +52,11 @@ Apply to the complete spec:
   ```
 - History: add `| [new version] | date | Iterated | jr-iterate-spec — [one-line] |`
 
-**5. Confirm**
+**5. Confirm + log progress**
 Respond in user's language: delta summary, next steps (`/jr-exe-spec`, `/jr-verify-spec`).
+
+Append entry to `docs/progress.md` (create with header if missing). Use today's date:
+```
+## YYYY-MM-DD — jr-iterate-spec — [spec slug]
+Iterated to v[X.X]. Delta: [one-line summary]. Status: Draft.
+```

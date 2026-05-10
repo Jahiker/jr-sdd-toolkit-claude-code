@@ -91,8 +91,14 @@ Status: Resolved | Date | Affected files: [list]
 ## Regression verification result
 ```
 
-**7. Final report** (in user's language)
+**7. Final report + log progress** (in user's language)
 Root cause resolved | Files modified | AC fixed | Changes table | Regression table | How to confirm fix | Documentation updated.
+
+Append entry to `docs/progress.md` (create with header if missing). Use today's date:
+```
+## YYYY-MM-DD — jr-fix-spec — [bug slug or related spec]
+Fixed [one-line root cause]. Files: [N modified]. [Hotfix in spec X.Y if applicable]
+```
 
 ## Special cases
 - Can't reproduce from code → ask for more context (runtime state, specific data, race condition?)

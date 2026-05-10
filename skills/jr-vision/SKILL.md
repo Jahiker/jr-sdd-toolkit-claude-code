@@ -46,8 +46,14 @@ Status: Draft | Version: 1.0 | Date | Author: jr-vision
 History table
 ```
 
-**3. Confirm**
+**3. Confirm + log progress**
 Respond in user's language. Indicate next step: `/jr-arch`.
+
+Append entry to `docs/progress.md` (create with header if missing — see jr-progress format reference). Use today's date in ISO format:
+```
+## YYYY-MM-DD — jr-vision — [project name]
+Created docs/vision.md (v1.0). [Pending items if any]
+```
 
 ## Special cases
 - Too vague → build with what's available, mark liberally with `[To be defined]`.

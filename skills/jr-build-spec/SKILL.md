@@ -78,5 +78,11 @@ History table (1.0 | date | Created | jr-build-spec)
 
 Each FR needs at least one testable AC. Undefined items → `[TBD]` or `[PENDING]`.
 
-**5. Confirm**
+**5. Confirm + log progress**
 Respond in user's language. Show path of created spec. Next steps: `/jr-exe-spec @specs/[name].md` then `/jr-verify-spec @specs/[name].md`.
+
+Append entry to `docs/progress.md` (create with header if missing). Use today's date:
+```
+## YYYY-MM-DD — jr-build-spec — [spec slug]
+Spec created (Draft v1.0). Source: [file|chat|file+chat]. [Pending items if any]
+```

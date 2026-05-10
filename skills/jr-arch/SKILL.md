@@ -64,8 +64,14 @@ History table
 **3. Update PROJECT.md**
 Update Toolkit Context block with: Docs language, Stack (one-line), Architecture (one-line), Conventions (one-line). If PROJECT.md doesn't exist, create it using jr-init template.
 
-**4. Confirm**
+**4. Confirm + log progress**
 Respond in user's language with stack summary and next step: `/jr-roadmap`.
+
+Append entry to `docs/progress.md` (create with header if missing). Use today's date:
+```
+## YYYY-MM-DD — jr-arch — [project name]
+Created docs/architecture.md and updated PROJECT.md. Stack: [one-line]. [Pending if any]
+```
 
 ## Principles
 - Justify everything. No decision without reasoning.

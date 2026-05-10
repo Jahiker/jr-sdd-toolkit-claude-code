@@ -68,8 +68,14 @@ Create specs/ and specs/fixes/ if they don't exist. For each roadmap feature cre
 > Pending spec. Run `/jr-build-spec` when it's this feature's turn.
 ```
 
-**4. Confirm**
+**4. Confirm + log progress**
 Respond in user's language: phase summary, total per phase, first command to run.
+
+Append entry to `docs/progress.md` (create with header if missing). Use today's date:
+```
+## YYYY-MM-DD — jr-roadmap — [project name]
+Created docs/roadmap.md and N spec placeholders in specs/. Phase 1: [first feature].
+```
 
 ## Special cases
 - MVP > 20 features → recommend reducing. Real MVP = 4-6 weeks of work.

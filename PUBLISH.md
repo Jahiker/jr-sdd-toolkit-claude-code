@@ -35,12 +35,14 @@ npm view @jahiker/claude-toolkit version
 Elige según la naturaleza del cambio:
 
 ```bash
-npm version patch   # 1.6.0 → 1.6.1  (bug fixes)
-npm version minor   # 1.6.0 → 1.7.0  (nueva skill o capacidad)
-npm version major   # 1.6.0 → 2.0.0  (breaking changes)
+npm version patch   # 1.7.0 → 1.7.1  (bug fixes)
+npm version minor   # 1.7.0 → 1.8.0  (nueva skill o capacidad)
+npm version major   # 1.7.0 → 2.0.0  (breaking changes)
 ```
 
 `npm version` actualiza `package.json` y crea un tag git automáticamente.
+
+> Si ya tienes el `package.json` con la versión correcta (ej. ya está en 1.7.0), no corras `npm version` — pasa directo al commit y tag manuales.
 
 ### 3. Commit y push
 
@@ -69,11 +71,13 @@ Si tienes 2FA activado:
 npm publish --access public --otp=123456
 ```
 
+> ⚠️ El `--otp` recibe el **código de 6 dígitos** de tu app de 2FA (Google Authenticator, Authy, etc.), NO un token de acceso `npm_xxx`. Los tokens van en `~/.npmrc`, no en `--otp`.
+
 ### 5. Crear release en GitHub (opcional pero recomendado)
 
 ```bash
-gh release create v1.6.0 \
-  --title "v1.6.0 — jr-build-spec accepts direct chat input" \
+gh release create v1.7.0 \
+  --title "v1.7.0 — Session continuity: jr-progress + cross-skill log writes" \
   --notes "Release notes here"
 ```
 
@@ -129,6 +133,26 @@ npx @jahiker/claude-toolkit install
 
 Reinicia Claude Code para que los skills se recarguen.
 
+### Error E400 con OTP malformado
+
+Si ves `["otp" with value "npm_***" fails to match the required pattern: /^\d+$/]`, estás pasando un token de acceso como si fuera código OTP.
+
+- **Token de acceso** (`npm_xxx`, ~64 chars): va en `~/.npmrc` como `_authToken`.
+- **OTP** (6 dígitos numéricos): va en el flag `--otp=123456`.
+
+Solución:
+
+```bash
+# Configura el token persistente
+echo "//registry.npmjs.org/:_authToken=npm_TU_TOKEN_AQUI" >> ~/.npmrc
+
+# Después publica sin --otp (si el token es Automation)
+npm publish --access public
+
+# O con OTP fresco si tu cuenta exige 2FA en publish
+npm publish --access public --otp=123456
+```
+
 ---
 
 ## Versionado del toolkit
@@ -142,3 +166,4 @@ Reinicia Claude Code para que los skills se recarguen.
 | 1.4.0 | Token optimization: compact skills (~58% reduction) + lazy references + Toolkit Context |
 | 1.5.0 | Maintenance release |
 | 1.6.0 | jr-build-spec accepts direct chat input + new jr-sync skill (drift reconciliation) |
+| 1.7.0 | Session continuity: new jr-progress skill + all modifier skills append to docs/progress.md |

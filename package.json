@@ -1,7 +1,7 @@
 {
   "name": "@jahiker/claude-toolkit",
-  "version": "1.6.0",
-  "description": "Spec-Driven Development toolkit for Claude Code — transform rough requirements into professional specs, implement them, and verify coverage.",
+  "version": "1.7.0",
+  "description": "Spec-Driven Development toolkit for Claude Code — transform rough requirements into professional specs, implement them, verify coverage, and keep continuity across sessions.",
   "keywords": [
     "claude",
     "claude-code",
@@ -25,7 +25,7 @@
     "url": "https://github.com/Jahiker/jr-sdd-toolkit-claude-code/issues"
   },
   "bin": {
-    "claude-toolkit": "bin/jr-toolkit.js"
+    "claude-toolkit": "./bin/jr-toolkit.js"
   },
   "files": [
     "bin/",

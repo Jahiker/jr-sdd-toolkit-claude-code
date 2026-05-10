@@ -76,3 +76,9 @@ Report to user in their language:
 - How to verify (concrete steps)
 - Decisions made during execution
 - Next step: `/jr-verify-spec @specs/[name].md`
+
+Append entry to `docs/progress.md` (create with header if missing). Use today's date:
+```
+## YYYY-MM-DD — jr-exe-spec — [spec slug]
+Implemented [main feature]. Files: [N created, M modified]. [Pending items if any]
+```

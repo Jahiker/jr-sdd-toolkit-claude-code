@@ -72,9 +72,15 @@ Conclusion:
   OR ❌ Critical gaps — return to /jr-exe-spec
 ```
 
-**4. Update spec**
+**4. Update spec + log progress**
 
 Add History entry: `| [v] | date | Verified | jr-verify-spec — Coverage: X% · Gaps: Y |`
 
 If coverage = 100% of verifiable ACs: `Status: Implemented` → `Status: Verified`
 If gaps exist: status stays `Implemented`.
+
+Append entry to `docs/progress.md` (create with header if missing). Use today's date:
+```
+## YYYY-MM-DD — jr-verify-spec — [spec slug]
+Coverage: X% · Status: [Verified|Implemented]. [N gaps if any]
+```

@@ -92,7 +92,7 @@ For each approved category:
 
 Add a History entry: `| [next-patch] | [date] | Synced | jr-sync — [N categories synced] |`.
 
-**5. Confirm**
+**5. Confirm + log progress**
 Respond in user's language with:
 - Summary of what was updated
 - Sections preserved untouched
@@ -101,6 +101,12 @@ Respond in user's language with:
   - If new specs detected → suggest reviewing each
   - If breaking architecture changes → suggest reviewing existing specs that depend on changed modules
   - Otherwise → "PROJECT.md está al día"
+
+Append entry to `docs/progress.md` (create with header if missing). Use today's date:
+```
+## YYYY-MM-DD — jr-sync — general
+Synced PROJECT.md. Categories: [list of categories updated]. [Specs table delta if any]
+```
 
 ## Special cases
 

@@ -53,8 +53,14 @@ Include these sections (written in Docs language):
 **Docs dir:** docs/
 ```
 
-**3. Confirm**
+**3. Confirm + log progress**
 Respond in user's language with: files created/updated, stack detected, architecture summary, list of available toolkit commands, suggested next step based on project state.
+
+Append entry to `docs/progress.md` (create with header if missing). Use today's date:
+```
+## YYYY-MM-DD — jr-init — general
+PROJECT.md [created|updated]. Stack: [one-line]. [N existing specs detected if any]
+```
 
 ## Special cases
 - Large project (50+ root files): focus on config files and first-level dirs only.

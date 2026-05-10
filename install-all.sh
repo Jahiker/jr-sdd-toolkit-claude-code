@@ -29,6 +29,7 @@ SKILLS=(
   jr-fix-spec
   jr-status
   jr-sync
+  jr-progress
 )
 
 echo ""
@@ -76,6 +77,7 @@ echo -e "  ${BLUE}/jr-verify-spec${RESET}      → Verificar cobertura de CAs"
 echo -e "  ${BLUE}/jr-fix-spec${RESET}         → Diagnosticar y corregir bugs"
 echo -e "  ${BLUE}/jr-status${RESET}           → Dashboard de specs"
 echo -e "  ${BLUE}/jr-sync${RESET}             → Sincronizar PROJECT.md con el proyecto"
+echo -e "  ${BLUE}/jr-progress${RESET}         → Log narrativo de progreso"
 echo ""
 echo -e "  ${YELLOW}Reinicia Claude Code para activar los skills.${RESET}"
 echo ""
