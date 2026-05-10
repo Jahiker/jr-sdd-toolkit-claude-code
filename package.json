@@ -25,7 +25,7 @@
     "url": "https://github.com/Jahiker/jr-sdd-toolkit-claude-code/issues"
   },
   "bin": {
-    "claude-toolkit": "./bin/jr-toolkit.js"
+    "claude-toolkit": "bin/jr-toolkit.js"
   },
   "files": [
     "bin/",
