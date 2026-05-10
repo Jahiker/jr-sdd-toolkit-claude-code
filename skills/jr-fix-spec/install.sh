@@ -1,53 +1,21 @@
 #!/usr/bin/env bash
-# ============================================================
-# install-jr-fix-spec.sh
-# ============================================================
 set -euo pipefail
 
-RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
-BLUE='\033[0;34m'; BOLD='\033[1m'; RESET='\033[0m'
-
-log()   { echo -e "${BLUE}[jr-fix-spec]${RESET} $*"; }
-ok()    { echo -e "${GREEN}✓${RESET} $*"; }
-warn()  { echo -e "${YELLOW}⚠${RESET}  $*"; }
-error() { echo -e "${RED}✗${RESET} $*" >&2; exit 1; }
-
-SKILL_DEST="${HOME}/.claude/skills/jr-fix-spec"
-COMMAND_DEST="${HOME}/.claude/commands/jr-fix-spec.md"
+SKILL_NAME="jr-fix-spec"
+SKILL_DEST="${HOME}/.claude/skills/${SKILL_NAME}"
+COMMAND_DEST="${HOME}/.claude/commands/${SKILL_NAME}.md"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-[[ -f "${SCRIPT_DIR}/SKILL.md" ]]   || error "No se encontró SKILL.md"
-[[ -f "${SCRIPT_DIR}/command.md" ]] || error "No se encontró command.md"
+mkdir -p "$(dirname "${SKILL_DEST}")"
+mkdir -p "$(dirname "${COMMAND_DEST}")"
 
-echo ""
-echo -e "${BOLD}╔══════════════════════════════════════════════╗${RESET}"
-echo -e "${BOLD}║      jr-fix-spec — Instalador local          ║${RESET}"
-echo -e "${BOLD}╚══════════════════════════════════════════════╝${RESET}"
-echo ""
+rm -rf "${SKILL_DEST}"
+cp -r "${SCRIPT_DIR}" "${SKILL_DEST}"
 
-mkdir -p "${HOME}/.claude/skills" "${HOME}/.claude/commands"
-ok "Directorios listos"
-
-[[ -d "${SKILL_DEST}" ]] && { warn "Ya existe. Sobreescribiendo..."; rm -rf "${SKILL_DEST}"; }
-mkdir -p "${SKILL_DEST}"
-cp "${SCRIPT_DIR}/SKILL.md"   "${SKILL_DEST}/SKILL.md"
-cp "${SCRIPT_DIR}/command.md" "${COMMAND_DEST}"
-ok "Skill instalado   → ${SKILL_DEST}"
-ok "Comando instalado → ${COMMAND_DEST}"
-
-ERRORS=0
-[[ -f "${SKILL_DEST}/SKILL.md" ]] || { warn "SKILL.md no encontrado en destino"; ERRORS=$((ERRORS+1)); }
-[[ -f "${COMMAND_DEST}" ]]        || { warn "command.md no encontrado en destino"; ERRORS=$((ERRORS+1)); }
-
-if [[ $ERRORS -eq 0 ]]; then
-  echo ""
-  echo -e "${GREEN}${BOLD}✅ Instalación completada${RESET}"
-  echo ""
-  echo -e "  ${BOLD}Uso:${RESET}"
-  echo -e "  ${BLUE}/jr-fix-spec @specs/fixes/nombre-del-bug.md${RESET}"
-  echo ""
-  echo -e "  ${YELLOW}Nota:${RESET} Reinicia Claude.ai para activar el skill."
-  echo ""
-else
-  error "La instalación tuvo ${ERRORS} problema(s)."
+if [[ -f "${SCRIPT_DIR}/command.md" ]]; then
+  cp "${SCRIPT_DIR}/command.md" "${COMMAND_DEST}"
 fi
+
+echo "✓ ${SKILL_NAME} instalado"
+echo "  Skill:   ${SKILL_DEST}"
+echo "  Command: ${COMMAND_DEST}"

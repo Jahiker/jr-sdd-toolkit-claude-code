@@ -20,6 +20,7 @@ warn()  { echo -e "${YELLOW}⚠${RESET}  $*"; }
 error() { echo -e "${RED}✗${RESET} $*" >&2; exit 1; }
 
 SKILL_DEST="${HOME}/.claude/skills/jr-build-spec"
+COMMAND_DEST="${HOME}/.claude/commands/jr-build-spec.md"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo ""
@@ -48,10 +49,10 @@ ok "Backup guardado → ${BACKUP}"
 cp "${SCRIPT_DIR}/SKILL.md" "${SKILL_DEST}/SKILL.md"
 ok "SKILL.md actualizado"
 
-# Copiar scripts/ si existen en la fuente
-if [[ -d "${SCRIPT_DIR}/scripts" ]]; then
-  cp -r "${SCRIPT_DIR}/scripts" "${SKILL_DEST}/scripts"
-  ok "scripts/ actualizados"
+# Reemplazar command.md también
+if [[ -f "${SCRIPT_DIR}/command.md" ]]; then
+  cp "${SCRIPT_DIR}/command.md" "${COMMAND_DEST}"
+  ok "command.md actualizado"
 fi
 
 # Verificación
@@ -63,5 +64,5 @@ echo ""
 echo -e "  ${BOLD}Skill:${RESET}  ${SKILL_DEST}/SKILL.md"
 echo -e "  ${BOLD}Backup:${RESET} ${BACKUP}"
 echo ""
-echo -e "  ${YELLOW}Nota:${RESET} Reinicia Claude.ai para que los cambios tomen efecto."
+echo -e "  ${YELLOW}Nota:${RESET} Reinicia Claude Code para que los cambios tomen efecto."
 echo ""

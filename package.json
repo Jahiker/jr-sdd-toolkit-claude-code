@@ -1,9 +1,10 @@
 {
   "name": "@jahiker/claude-toolkit",
-  "version": "1.4.0",
-  "description": "Spec-Driven Development toolkit for Claude.ai — transform rough requirements into professional specs, implement them, and verify coverage.",
+  "version": "1.6.0",
+  "description": "Spec-Driven Development toolkit for Claude Code — transform rough requirements into professional specs, implement them, and verify coverage.",
   "keywords": [
     "claude",
+    "claude-code",
     "anthropic",
     "spec-driven-development",
     "sdd",
@@ -13,15 +14,15 @@
     "claude-skills",
     "developer-tools"
   ],
-  "author": "",
+  "author": "Jahiker",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Jahiker/jr-toolkit.git"
+    "url": "git+https://github.com/Jahiker/jr-sdd-toolkit-claude-code.git"
   },
-  "homepage": "https://github.com/Jahiker/jr-toolkit#readme",
+  "homepage": "https://github.com/Jahiker/jr-sdd-toolkit-claude-code#readme",
   "bugs": {
-    "url": "https://github.com/Jahiker/jr-toolkit/issues"
+    "url": "https://github.com/Jahiker/jr-sdd-toolkit-claude-code/issues"
   },
   "bin": {
     "claude-toolkit": "./bin/jr-toolkit.js"

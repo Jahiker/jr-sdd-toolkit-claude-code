@@ -19,6 +19,7 @@ const SKILLS = [
   'jr-verify-spec',
   'jr-fix-spec',
   'jr-status',
+  'jr-sync',
 ];
 
 const colors = {
@@ -84,19 +85,20 @@ function install() {
   if (errors === 0) {
     console.log(c('green', c('bold', '✅ Toolkit instalado correctamente')));
     console.log('');
-    console.log('  ' + c('bold', 'Comandos disponibles en Claude.ai:'));
+    console.log('  ' + c('bold', 'Comandos disponibles en Claude Code:'));
     console.log('  ' + c('blue', '/jr-init') + '             → Inicializar proyecto (PROJECT.md)');
     console.log('  ' + c('blue', '/jr-vision') + '           → Idea → Documento de visión del producto');
     console.log('  ' + c('blue', '/jr-arch') + '             → Visión → Arquitectura técnica del sistema');
     console.log('  ' + c('blue', '/jr-roadmap') + '          → Arquitectura → Roadmap y backlog ordenado');
-    console.log('  ' + c('blue', '/jr-build-spec') + '        → Requerimiento → Spec Draft');
-    console.log('  ' + c('blue', '/jr-iterate-spec') + '      → Iterar un spec existente');
-    console.log('  ' + c('blue', '/jr-exe-spec') + '          → Implementar un spec');
-    console.log('  ' + c('blue', '/jr-verify-spec') + '       → Verificar cobertura de CAs');
-    console.log('  ' + c('blue', '/jr-fix-spec') + '          → Diagnosticar y corregir bugs');
-    console.log('  ' + c('blue', '/jr-status') + '            → Dashboard de specs');
+    console.log('  ' + c('blue', '/jr-build-spec') + '       → Requerimiento → Spec Draft');
+    console.log('  ' + c('blue', '/jr-iterate-spec') + '     → Iterar un spec existente');
+    console.log('  ' + c('blue', '/jr-exe-spec') + '         → Implementar un spec');
+    console.log('  ' + c('blue', '/jr-verify-spec') + '      → Verificar cobertura de CAs');
+    console.log('  ' + c('blue', '/jr-fix-spec') + '         → Diagnosticar y corregir bugs');
+    console.log('  ' + c('blue', '/jr-status') + '           → Dashboard de specs');
+    console.log('  ' + c('blue', '/jr-sync') + '             → Sincronizar PROJECT.md con el estado real del proyecto');
     console.log('');
-    console.log('  ' + c('yellow', 'Reinicia Claude.ai para activar los skills.'));
+    console.log('  ' + c('yellow', 'Reinicia Claude Code para activar los skills.'));
     console.log('');
   } else {
     console.log(c('red', `⚠ Instalación con ${errors} problema(s).`));
@@ -141,13 +143,15 @@ function listSkills() {
 
 function showHelp() {
   console.log('');
-  console.log(c('bold', 'jr-toolkit') + ' — Spec-Driven Development para Claude.ai');
+  console.log(c('bold', 'jr-toolkit') + ' — Spec-Driven Development para Claude Code');
   console.log('');
   console.log(c('bold', 'Uso:'));
-  console.log('  npx jr-toolkit install     Instala todos los skills en ~/.claude/');
-  console.log('  npx jr-toolkit uninstall   Desinstala todos los skills');
-  console.log('  npx jr-toolkit list        Lista los skills y su estado');
-  console.log('  npx jr-toolkit help        Muestra esta ayuda');
+  console.log('  npx @jahiker/claude-toolkit install     Instala todos los skills en ~/.claude/');
+  console.log('  npx @jahiker/claude-toolkit uninstall   Desinstala todos los skills');
+  console.log('  npx @jahiker/claude-toolkit list        Lista los skills y su estado');
+  console.log('  npx @jahiker/claude-toolkit help        Muestra esta ayuda');
+  console.log('');
+  console.log('  ' + c('yellow', 'Si lo instalaste global (npm i -g), usa:') + ' claude-toolkit install');
   console.log('');
   console.log(c('bold', 'Skills incluidos:'));
   console.log('  /jr-init           Inicializar proyecto (PROJECT.md)');
@@ -160,8 +164,9 @@ function showHelp() {
   console.log('  /jr-verify-spec    Verificar cobertura de criterios de aceptación');
   console.log('  /jr-fix-spec       Diagnosticar y corregir bugs');
   console.log('  /jr-status         Dashboard del estado de specs del proyecto');
+  console.log('  /jr-sync           Sincronizar PROJECT.md con el estado real del proyecto');
   console.log('');
-  console.log(c('bold', 'Más info:') + ' https://github.com/YOUR_USERNAME/jr-toolkit');
+  console.log(c('bold', 'Más info:') + ' https://github.com/Jahiker/jr-sdd-toolkit-claude-code');
   console.log('');
 }
 

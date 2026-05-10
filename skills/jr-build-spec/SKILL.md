@@ -1,6 +1,6 @@
 ---
 name: jr-build-spec
-description: Use when the user runs /jr-build-spec or provides a rough requirement/user story to be refined into a professional spec. Triggers: "build spec", "refine requirement", "create spec", "analyze user story", /jr-build-spec.
+description: Use when the user runs /jr-build-spec or provides a rough requirement / user story to be refined into a professional spec. Input can be a .md file (e.g. @req.md), a direct description in chat, or both combined — no file required. Triggers: "build spec", "refine requirement", "create spec", "analyze user story", /jr-build-spec.
 ---
 
 # jr-build-spec
@@ -10,13 +10,23 @@ Transform rough requirements into professional technical specs.
 ## Rules
 - Respond to user in their conversation language.
 - Read `## Toolkit Context` from PROJECT.md at start → use Stack, Architecture, Conventions, Docs language.
-- If no .md file provided, ask for it in user's language.
+- Accept input from any of these sources (use whatever is available):
+  - A `.md` file referenced by the user (e.g. `@req.md`)
+  - A direct text description in the user's chat message
+  - Both combined (file as base, chat text as additional context)
+- Only ask for input if there is **zero** information to work from (no file AND no chat description).
 - Write spec files in Docs language.
 
 ## Steps
 
 **0. Read input + context**
-Read the requirement .md file and PROJECT.md Toolkit Context. Scan specs/ for existing specs (titles + FR sections only).
+Determine input source:
+- If a `.md` file was referenced → read it as primary input.
+- If the user described the requirement directly in chat → use that as primary input.
+- If both → combine: file as base, chat as clarifications/additions.
+- If neither → ask user in their language for the requirement (text or file).
+
+Read PROJECT.md `## Toolkit Context`. Scan `specs/` for existing specs (titles + FR sections only).
 
 **1. Detect overlaps**
 Check if existing specs cover similar functionality, are extended/modified by this requirement, could be broken by it, or must run before it. If found, report to user in their language and ask: new spec or integrate into existing? Wait for decision.
@@ -42,6 +52,7 @@ Write in Docs language. Filename: `specs/[kebab-case-slug].md`
 Status: Draft | Version: 1.0 | Date | Author: jr-build-spec
 Related specs: [from overlap check or "None"]
 Scope warning: [if applicable — remove line otherwise]
+Input source: [file: req.md | chat | file + chat]
 
 1. Executive Summary (2-3 sentences: what, why, expected outcome)
 2. Context and Motivation (problem, affected users, business impact)
@@ -68,4 +79,4 @@ History table (1.0 | date | Created | jr-build-spec)
 Each FR needs at least one testable AC. Undefined items → `[TBD]` or `[PENDING]`.
 
 **5. Confirm**
-Respond in user's language. Next steps: `/jr-exe-spec @specs/[name].md` then `/jr-verify-spec @specs/[name].md`.
+Respond in user's language. Show path of created spec. Next steps: `/jr-exe-spec @specs/[name].md` then `/jr-verify-spec @specs/[name].md`.
