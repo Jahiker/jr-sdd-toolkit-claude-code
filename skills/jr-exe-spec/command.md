@@ -1,3 +1,9 @@
+---
+description: Implement an approved spec in code with full traceability
+model: opus
+tools: Read, Write, Edit, Glob, Grep, Bash
+---
+
 # /jr-exe-spec
 
 Implementa un spec aprobado en código real. En modo `--dev`, aplica 3 gates de pre-ejecución antes de mostrar el plan: comprensión del scope, riesgo identificado, y estrategia de rollback.

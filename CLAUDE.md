@@ -31,8 +31,20 @@ There is no build step, no transpilation, and no test suite yet (`npm test` is a
 
 Each skill directory contains:
 - `SKILL.md` — actual Claude Code skill instructions (compact English; source of truth for behavior)
-- `command.md` — user-facing slash command help
+- `command.md` — user-facing slash command help, with YAML frontmatter (`description`, `model`, `tools`) since v1.8.1
 - `install.sh` — copies files to `~/.claude/`
+
+#### Model assignment per command (v1.8.1+)
+
+Commands declare their preferred model in `command.md` frontmatter. Claude Code respects this when the slash command runs. Cost-conscious assignment:
+
+| Tier | Model | Skills |
+|---|---|---|
+| Mechanical / read-only | `haiku` | jr-status, jr-progress, jr-sync, jr-init |
+| Reasoning | `sonnet` | jr-vision, jr-arch, jr-roadmap, jr-build-spec, jr-iterate-spec, jr-verify-spec, jr-fix-spec |
+| Code-writing critical | `opus` | jr-exe-spec |
+
+Users can override per-invocation with `/model <name>` if needed. Tool restrictions (`tools:` frontmatter) provide defense-in-depth — e.g. jr-status only has `Read, Glob, Grep`, so it cannot write or execute even if Claude tried.
 
 **Project kickoff:**
 

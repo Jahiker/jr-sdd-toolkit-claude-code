@@ -1,3 +1,9 @@
+---
+description: Verify acceptance criteria coverage of an implemented spec
+model: sonnet
+tools: Read, Write, Glob, Grep, Bash
+---
+
 # /jr-verify-spec
 
 Verifica que la implementación de un spec cubre sus criterios de aceptación. Cierra el loop del ciclo spec-driven.

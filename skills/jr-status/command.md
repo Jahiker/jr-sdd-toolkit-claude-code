@@ -1,3 +1,9 @@
+---
+description: Dashboard of all project specs grouped by status
+model: haiku
+tools: Read, Glob, Grep
+---
+
 # /jr-status
 
 Genera un dashboard del estado de todos los specs del proyecto. Visibilidad completa de qué está hecho, qué está en progreso y qué tiene deuda pendiente.

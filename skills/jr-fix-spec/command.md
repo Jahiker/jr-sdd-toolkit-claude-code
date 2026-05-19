@@ -1,3 +1,9 @@
+---
+description: Diagnose and fix bugs with full documentation
+model: sonnet
+tools: Read, Write, Edit, Glob, Grep, Bash
+---
+
 # /jr-fix-spec
 
 Diagnostica, documenta y corrige bugs de forma estructurada y quirúrgica. Toca lo mínimo necesario, deja trazabilidad completa y verifica regresión.

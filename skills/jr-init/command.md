@@ -1,3 +1,9 @@
+---
+description: Initialize project context (PROJECT.md) for the toolkit
+model: haiku
+tools: Read, Write, Glob, Grep, Bash
+---
+
 # /jr-init
 
 Inicializa un proyecto para el toolkit. Crea o actualiza `PROJECT.md` con stack, arquitectura, convenciones y el bloque `Toolkit Context` que todas las demás skills leen.

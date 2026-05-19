@@ -1,3 +1,9 @@
+---
+description: Transform vision into technical architecture + PROJECT.md
+model: sonnet
+tools: Read, Write, Glob
+---
+
 # /jr-arch
 
 Define la arquitectura técnica del proyecto basándose en el documento de visión. Produce stack justificado, estructura de módulos, modelo de datos inicial y decisiones técnicas fundamentales.

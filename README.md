@@ -180,6 +180,20 @@ After installing, **restart Claude Code** to activate the skills.
 
 ---
 
+## Per-command model assignment (v1.8.1+)
+
+Each slash command declares its preferred model via frontmatter to keep costs in check:
+
+| Skills | Model | Why |
+|---|---|---|
+| `/jr-status` · `/jr-progress` · `/jr-sync` · `/jr-init` | `haiku` | Mechanical / read-only — no creative reasoning needed |
+| `/jr-vision` · `/jr-arch` · `/jr-roadmap` · `/jr-build-spec` · `/jr-iterate-spec` · `/jr-verify-spec` · `/jr-fix-spec` | `sonnet` | Reasoning-heavy but bounded |
+| `/jr-exe-spec` | `opus` | Code-writing with cascading technical decisions — don't skimp |
+
+Override per-invocation with `/model <name>` if needed. Each command also declares `tools:` (e.g. `/jr-status` only has `Read, Glob, Grep`) as defense-in-depth — preventing accidental writes or shell execution from skills that don't need them.
+
+---
+
 ## Spec lifecycle
 
 ```

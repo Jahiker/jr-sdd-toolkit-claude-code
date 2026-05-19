@@ -1,3 +1,9 @@
+---
+description: Break architecture into an ordered feature backlog
+model: sonnet
+tools: Read, Write, Glob
+---
+
 # /jr-roadmap
 
 Descompone el producto en épicas y features, los ordena por dependencias técnicas y valor, y produce el mapa de trabajo accionable para usar con el resto del toolkit.

@@ -1,3 +1,9 @@
+---
+description: Transform a raw idea into a product vision document
+model: sonnet
+tools: Read, Write
+---
+
 # /jr-vision
 
 Transforma una idea en bruto en un documento de visión del producto estructurado y accionable. Primer paso del flujo de inicio de proyecto.

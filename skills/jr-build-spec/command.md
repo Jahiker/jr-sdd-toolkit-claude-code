@@ -1,3 +1,9 @@
+---
+description: Transform a rough requirement into a professional spec
+model: sonnet
+tools: Read, Write, Glob, Grep
+---
+
 # /jr-build-spec
 
 Transforma un requerimiento o historia de usuario en un spec técnico profesional. En modo `--dev`, evalúa la calidad del spec con una rúbrica de 6 dimensiones y bloquea specs débiles.

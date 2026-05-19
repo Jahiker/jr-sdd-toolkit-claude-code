@@ -1,3 +1,9 @@
+---
+description: Read or append to the project progress log
+model: haiku
+tools: Read, Write
+---
+
 # /jr-progress
 
 Lee o agrega al log de progreso del proyecto (`docs/progress.md`) — la narrativa cronológica de qué se ha hecho, actualizada automáticamente por todas las skills modificadoras.

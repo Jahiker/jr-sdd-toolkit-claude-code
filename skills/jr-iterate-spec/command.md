@@ -1,3 +1,9 @@
+---
+description: Iterate an existing spec with semantic versioning
+model: sonnet
+tools: Read, Write, Glob, Grep
+---
+
 # /jr-iterate-spec
 
 Itera sobre un spec existente incorporando nuevos cambios o requerimientos. Versiona semánticamente y produce el spec actualizado listo para ejecutar con jr-exe-spec.

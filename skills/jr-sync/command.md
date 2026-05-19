@@ -1,3 +1,9 @@
+---
+description: Detect and reconcile drift in PROJECT.md
+model: haiku
+tools: Read, Write, Glob, Grep
+---
+
 # /jr-sync
 
 Detecta y reconcilia el drift entre `PROJECT.md` y el estado real del proyecto. Quirúrgico: solo toca lo que cambió.
