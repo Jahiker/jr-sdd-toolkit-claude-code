@@ -15,18 +15,26 @@ Does not replace automated tests — complements them.
 - If no spec file provided, ask in user's language.
 - Traceability comments (`// spec: ...`) are searched regardless of code language.
 
+## Scope discipline (cost control)
+verify-spec is read-heavy. Keep its context footprint minimal:
+- **Source of truth for which files to read is the spec's `## Affected Files` table.** Read only those files. Do NOT scan the whole codebase.
+- If `## Affected Files` is missing (spec implemented before this section existed, or by hand): tell the user the table is missing, offer to either (a) re-run `/jr-exe-spec` to generate it, or (b) have them list the files to verify. Only as a last resort, `grep` for `// spec: specs/[name].md` — and tell the user this is the expensive path.
+- **Surgical reading**: for files larger than ~120 lines, do NOT read the whole file. First `grep` for the traceability comment (`// spec: ...`) and the AC-relevant symbols, then read only the relevant blocks plus ~15 lines of surrounding context. Read small files (≤120 lines) in full.
+- Never re-read a file already in context. Never read test fixtures, lockfiles, build output, or vendored deps.
+
 ## Steps
 
 **0. Validate**
 - No file → ask for it.
 - `Status: Draft` → warn user it's not yet implemented. Ask if proceeding anyway.
+- `Status: Sketch` → refuse: spec was never implemented (it's below readiness threshold).
 - `Status: Implemented` → continue.
 
 Extract all verifiable elements: every AC (AC-XX) from every FR, verifiable NFRs, files in Affected Files section.
-Announce to user: "Auditing X acceptance criteria and Y NFRs."
+Announce to user: "Auditing X acceptance criteria and Y NFRs across N files."
 
-**1. Walk the code**
-For each file in `## Affected Files` (or infer from Technical Design > Components Involved, or search for `// spec: specs/name.md`): read file, find traceability comment, identify which ACs the logic covers.
+**1. Walk the code (scoped)**
+Read only the files in `## Affected Files`, applying the surgical reading rule above. For each: find the traceability comment, identify which ACs the logic covers. If the table is missing, follow the fallback path in Scope discipline — don't silently grep the whole project.
 
 **2. Evaluate each AC**
 

@@ -136,3 +136,4 @@ npm publish --access public
 | 1.7.0 | Session continuity: jr-progress skill + cross-skill log writes to docs/progress.md |
 | 1.8.0 | Dev mode Phase 1: jr-build-spec --dev rubric (6 dimensions, sketches dir) + jr-exe-spec --dev gates (files / risk / rollback) + Mode field in PROJECT.md |
 | 1.8.1 | Quick-win optimization: command.md frontmatter with model + tools per skill. Read-only skills (status, progress, sync, init) → haiku. Reasoning skills → sonnet. Code-writing skill (exe-spec) → opus. Significant token cost reduction with no behavioral changes. |
+| 1.8.2 | verify-spec scope optimization (read only Affected Files, surgical reading for large files, no whole-codebase grep fallback) to cut its high token cost. New `version` CLI command (+ `--version`/`-v`) showing package version and install status. |

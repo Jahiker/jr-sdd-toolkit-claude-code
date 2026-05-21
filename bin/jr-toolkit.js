@@ -143,6 +143,68 @@ function listSkills() {
   console.log('');
 }
 
+function showVersion() {
+  // Package version from package.json
+  let pkgVersion = 'unknown';
+  try {
+    const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'));
+    pkgVersion = pkg.version;
+  } catch (e) {
+    // leave as unknown
+  }
+
+  console.log('');
+  console.log(c('bold', 'jr-toolkit') + ` — v${pkgVersion}`);
+  console.log('');
+
+  // Inspect installed skills
+  const installed = [];
+  const missing = [];
+  let oldestMtime = null;
+  let newestMtime = null;
+  let newestSkill = null;
+
+  for (const skill of SKILLS) {
+    const skillFile = path.join(CLAUDE_SKILLS_DIR, skill, 'SKILL.md');
+    if (fs.existsSync(skillFile)) {
+      installed.push(skill);
+      const mtime = fs.statSync(skillFile).mtime;
+      if (!oldestMtime || mtime < oldestMtime) oldestMtime = mtime;
+      if (!newestMtime || mtime > newestMtime) { newestMtime = mtime; newestSkill = skill; }
+    } else {
+      missing.push(skill);
+    }
+  }
+
+  const fmtDate = (d) => d ? d.toISOString().slice(0, 10) : 'n/a';
+  const daysAgo = (d) => d ? Math.floor((Date.now() - d.getTime()) / 86400000) : null;
+
+  if (installed.length === 0) {
+    console.log('  ' + c('yellow', 'No skills installed yet.'));
+    console.log('  Run ' + c('blue', 'npx @jahiker/claude-toolkit install') + ' to install.');
+    console.log('');
+    return;
+  }
+
+  console.log('  ' + c('bold', 'Package version (npm):  ') + pkgVersion);
+  console.log('  ' + c('bold', 'Skills installed:       ') + `${installed.length}/${SKILLS.length}` +
+    (missing.length === 0 ? ' ' + c('green', '✓') : ' ' + c('yellow', `(missing: ${missing.join(', ')})`)));
+  console.log('  ' + c('bold', 'Install location:       ') + CLAUDE_SKILLS_DIR);
+  console.log('  ' + c('bold', 'Oldest skill file:      ') + `${fmtDate(oldestMtime)} (${daysAgo(oldestMtime)} days ago)`);
+  console.log('  ' + c('bold', 'Newest skill file:      ') + `${newestSkill} — ${fmtDate(newestMtime)}`);
+  console.log('');
+
+  // Staleness hint: if installed skills are older than the package file, suggest reinstall
+  const pkgMtime = (() => {
+    try { return fs.statSync(path.join(__dirname, '..', 'package.json')).mtime; } catch { return null; }
+  })();
+  if (pkgMtime && oldestMtime && pkgMtime > oldestMtime) {
+    console.log('  ' + c('yellow', '⚠ Some installed skills may be older than this package.'));
+    console.log('  ' + 'Run ' + c('blue', 'npx @jahiker/claude-toolkit install') + ' to refresh, then restart Claude Code.');
+    console.log('');
+  }
+}
+
 function showHelp() {
   console.log('');
   console.log(c('bold', 'jr-toolkit') + ' — Spec-Driven Development para Claude Code');
@@ -151,6 +213,7 @@ function showHelp() {
   console.log('  npx @jahiker/claude-toolkit install     Instala todos los skills en ~/.claude/');
   console.log('  npx @jahiker/claude-toolkit uninstall   Desinstala todos los skills');
   console.log('  npx @jahiker/claude-toolkit list        Lista los skills y su estado');
+  console.log('  npx @jahiker/claude-toolkit version     Muestra la versión y estado de instalación');
   console.log('  npx @jahiker/claude-toolkit help        Muestra esta ayuda');
   console.log('');
   console.log('  ' + c('yellow', 'Si lo instalaste global (npm i -g), usa:') + ' claude-toolkit install');
@@ -180,6 +243,9 @@ switch (command) {
   case 'install':   install();    break;
   case 'uninstall': uninstall();  break;
   case 'list':      listSkills(); break;
+  case 'version':
+  case '--version':
+  case '-v':        showVersion(); break;
   case 'help':
   case '--help':
   case '-h':        showHelp();   break;

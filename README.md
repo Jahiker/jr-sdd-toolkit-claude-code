@@ -242,6 +242,7 @@ JavaScript · TypeScript · PHP · React · Next.js · TanStack Query · Vue 3 �
 npx @jahiker/claude-toolkit install     # Install all skills to ~/.claude/
 npx @jahiker/claude-toolkit uninstall   # Remove all skills
 npx @jahiker/claude-toolkit list        # List skills and their install status
+npx @jahiker/claude-toolkit version     # Show package version + install status
 npx @jahiker/claude-toolkit help        # Show help
 ```
 
