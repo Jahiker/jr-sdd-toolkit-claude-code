@@ -24,6 +24,7 @@ SKILLS=(
   jr-roadmap
   jr-build-spec
   jr-iterate-spec
+  jr-patch
   jr-exe-spec
   jr-verify-spec
   jr-fix-spec
@@ -72,6 +73,7 @@ echo -e "  ${BLUE}/jr-arch${RESET}             → Visión → Arquitectura téc
 echo -e "  ${BLUE}/jr-roadmap${RESET}          → Arquitectura → Roadmap"
 echo -e "  ${BLUE}/jr-build-spec${RESET}       → Requerimiento → Spec Draft"
 echo -e "  ${BLUE}/jr-iterate-spec${RESET}     → Iterar un spec existente"
+echo -e "  ${BLUE}/jr-patch${RESET}            → Cambio rápido de bajo riesgo (sin spec)"
 echo -e "  ${BLUE}/jr-exe-spec${RESET}         → Implementar un spec"
 echo -e "  ${BLUE}/jr-verify-spec${RESET}      → Verificar cobertura de CAs"
 echo -e "  ${BLUE}/jr-fix-spec${RESET}         → Diagnosticar y corregir bugs"

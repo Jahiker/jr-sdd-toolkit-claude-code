@@ -23,6 +23,7 @@ From raw idea to verified code — a complete structured workflow for AI-assiste
 /jr-init           →  Project context (PROJECT.md). Accepts --dev / --no-dev.
 /jr-build-spec     →  Rough requirement → Polished spec. Accepts --dev.
 /jr-iterate-spec   →  Iterate an existing spec
+/jr-patch          →  Trivial low-risk change (color, copy, typo) — no spec, with risk classifier
 /jr-exe-spec       →  Approved spec → Working code. Accepts --dev.
 /jr-verify-spec    →  Code → Acceptance criteria coverage report
 
@@ -166,6 +167,7 @@ After installing, **restart Claude Code** to activate the skills.
 |---|---|---|---|
 | jr-build-spec | `/jr-build-spec [--dev|--no-dev]` | Chat text **or** `@req.md` | `specs/feature.md` (Draft) or `specs/sketches/feature.md` (Sketch) |
 | jr-iterate-spec | `/jr-iterate-spec @specs/x.md` | Existing spec + change | Updated spec (new version) |
+| jr-patch | `/jr-patch [--dev|--no-dev]` | Trivial change request | Direct edit + progress log entry (no spec) |
 | jr-exe-spec | `/jr-exe-spec @specs/x.md [--dev|--no-dev]` | Approved spec | Code + spec → Implemented |
 | jr-verify-spec | `/jr-verify-spec @specs/x.md` | Implemented spec | Coverage report + spec → Verified |
 
@@ -187,7 +189,7 @@ Each slash command declares its preferred model via frontmatter to keep costs in
 | Skills | Model | Why |
 |---|---|---|
 | `/jr-status` · `/jr-progress` · `/jr-sync` · `/jr-init` | `haiku` | Mechanical / read-only — no creative reasoning needed |
-| `/jr-vision` · `/jr-arch` · `/jr-roadmap` · `/jr-build-spec` · `/jr-iterate-spec` · `/jr-verify-spec` · `/jr-fix-spec` | `sonnet` | Reasoning-heavy but bounded |
+| `/jr-vision` · `/jr-arch` · `/jr-roadmap` · `/jr-build-spec` · `/jr-iterate-spec` · `/jr-patch` · `/jr-verify-spec` · `/jr-fix-spec` | `sonnet` | Reasoning-heavy but bounded |
 | `/jr-exe-spec` | `opus` | Code-writing with cascading technical decisions — don't skimp |
 
 Override per-invocation with `/model <name>` if needed. Each command also declares `tools:` (e.g. `/jr-status` only has `Read, Glob, Grep`) as defense-in-depth — preventing accidental writes or shell execution from skills that don't need them.
@@ -209,6 +211,28 @@ Continuity:       all modifier skills append to docs/progress.md
 ```
 
 A `Sketch` is a spec that didn't pass the readiness rubric (score <60 in `--dev` mode). It lives in `specs/sketches/` and must be iterated until it passes.
+
+---
+
+## Fast path for trivial changes (`/jr-patch`)
+
+Not every change deserves the full spec ceremony. Changing a font color, fixing a typo, or tweaking placeholder text through the whole spec → implement → verify flow is friction that makes people abandon the process. `/jr-patch` is the escape valve:
+
+```bash
+/jr-patch change the header title color from #333 to #1a1a1a in Header.tsx
+```
+
+Flow: locate → classify risk → show diff → confirm → apply → log. No spec, no execution plan, no lifecycle.
+
+**The safety layer.** Before touching anything, `/jr-patch` runs a mandatory risk classifier:
+
+- 🔴 **Hard block** → refuses and redirects to `/jr-fix-spec` or `/jr-iterate-spec`. Triggers on: control-flow logic, auth/security, DB/schema, money/time/math, external API calls, dependency changes, or >2 files / >15 lines.
+- 🟡 **Soft warning** → surfaces the risk, lets you choose. Triggers on: 2 files, ~15 lines, or editing code that carries a `// spec:` comment (spec-born code — patching it risks drift).
+- 🟢 **Allow** → proceeds. Cosmetic values, UI copy, non-critical config, typos, formatting.
+
+In `Mode: dev`, the classifier is stricter: thresholds drop (>1 file / >8 lines) and `// spec:` code is hard-blocked, not just warned.
+
+Every patch — even trivial — leaves a line in `docs/progress.md`. Out-of-spec patches are flagged for later drift detection. Nothing happens invisibly.
 
 ---
 
