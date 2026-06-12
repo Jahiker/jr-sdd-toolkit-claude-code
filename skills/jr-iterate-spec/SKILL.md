@@ -12,7 +12,14 @@ Version an existing spec with new changes. Semantic versioning: patch (1.0→1.1
 - Read `## Toolkit Context` from PROJECT.md at start.
 - Requires TWO inputs: existing spec (@specs/name.md) + change description (text or .md). Ask if either missing.
 - Preserve the existing spec's language — do not change it.
-- Overwrite the existing spec file — preserve all history.
+- Edit the existing spec file surgically — preserve all history.
+
+## Scope discipline (cost control)
+Iteration is a delta operation, not a rebuild. Keep the context footprint minimal:
+- **Read the spec once** in step 0. Do not re-read it in later steps — work from what's in context.
+- **Edit surgically, don't rewrite**: use targeted edits (str_replace-style) on the sections the delta touches — header fields, the specific FRs modified/added, the affected Technical Design subsections, Delta, History. Do NOT regenerate or rewrite untouched sections.
+- **Do not scan the codebase** during iteration. The spec's own Affected Files section tells you what's implemented; conflict checking (step 2) works from the spec content, not from reading source files. Only read a source file if the user explicitly asks whether the change breaks something specific.
+- **Multiple iterations in one session**: the spec is already in context from the first iteration — never re-read it for subsequent ones.
 
 ## Steps
 
@@ -33,11 +40,11 @@ Does change contradict existing FRs? Break already-implemented behavior? Have un
 **3. Ask questions if ambiguous** (in user's language)
 Same categories as jr-build-spec (🙋 client, 🛠️ dev). Only if needed for verifiable ACs.
 
-**4. Build iterated spec**
+**4. Apply iteration (surgical edits)**
 
-> ⚠️ Mandatory. Overwrite existing file without asking. Skill does not finish until file is written.
+> ⚠️ Mandatory. Apply edits without asking. Skill does not finish until the file is updated on disk.
 
-Apply to the complete spec:
+Edit ONLY the touched sections (per Scope discipline — do not rewrite the whole spec):
 - Header: update Version, Date, set `Status: Draft` (even if was Implemented/Verified)
 - Modified FRs: append `> 🔄 Modified in v[X.X]: [one-line]`
 - New FRs: next available number + `> ✨ New in v[X.X]`

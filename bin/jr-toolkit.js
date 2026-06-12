@@ -16,6 +16,7 @@ const SKILLS = [
   'jr-build-spec',
   'jr-iterate-spec',
   'jr-patch',
+  'jr-worklist',
   'jr-exe-spec',
   'jr-verify-spec',
   'jr-fix-spec',
@@ -95,6 +96,7 @@ function install() {
     console.log('  ' + c('blue', '/jr-build-spec') + '       → Requerimiento → Spec Draft');
     console.log('  ' + c('blue', '/jr-iterate-spec') + '     → Iterar un spec existente');
     console.log('  ' + c('blue', '/jr-patch') + '            → Cambio rápido de bajo riesgo (sin spec)');
+    console.log('  ' + c('blue', '/jr-worklist') + '         → Documento QA → worklist punto por punto');
     console.log('  ' + c('blue', '/jr-exe-spec') + '         → Implementar un spec');
     console.log('  ' + c('blue', '/jr-verify-spec') + '      → Verificar cobertura de CAs');
     console.log('  ' + c('blue', '/jr-fix-spec') + '         → Diagnosticar y corregir bugs');
@@ -228,6 +230,7 @@ function showHelp() {
   console.log('  /jr-build-spec     Requerimiento crudo → Spec Draft');
   console.log('  /jr-iterate-spec   Iterar un spec existente');
   console.log('  /jr-patch          Cambio rápido de bajo riesgo, sin spec (con clasificador de riesgo)');
+  console.log('  /jr-worklist       Documento QA → worklist trackeada, un punto a la vez');
   console.log('  /jr-exe-spec       Implementar un spec en código');
   console.log('  /jr-verify-spec    Verificar cobertura de criterios de aceptación');
   console.log('  /jr-fix-spec       Diagnosticar y corregir bugs');

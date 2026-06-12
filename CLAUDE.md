@@ -41,7 +41,7 @@ Commands declare their preferred model in `command.md` frontmatter. Claude Code 
 | Tier | Model | Skills |
 |---|---|---|
 | Mechanical / read-only | `haiku` | jr-status, jr-progress, jr-sync, jr-init |
-| Reasoning | `sonnet` | jr-vision, jr-arch, jr-roadmap, jr-build-spec, jr-iterate-spec, jr-patch, jr-verify-spec, jr-fix-spec |
+| Reasoning | `sonnet` | jr-vision, jr-arch, jr-roadmap, jr-build-spec, jr-iterate-spec, jr-patch, jr-worklist, jr-verify-spec, jr-fix-spec |
 | Code-writing critical | `opus` | jr-exe-spec |
 
 Users can override per-invocation with `/model <name>` if needed. Tool restrictions (`tools:` frontmatter) provide defense-in-depth — e.g. jr-status only has `Read, Glob, Grep`, so it cannot write or execute even if Claude tried.
@@ -62,6 +62,7 @@ Users can override per-invocation with `/model <name>` if needed. Tool restricti
 | `jr-build-spec` | `/jr-build-spec [--dev\|--no-dev]` | Chat text or `@req.md` → `specs/feature.md` (Draft) or `specs/sketches/feature.md` (Sketch in dev mode) |
 | `jr-iterate-spec` | `/jr-iterate-spec` | Existing spec + change → new version (Draft) |
 | `jr-patch` | `/jr-patch [--dev\|--no-dev]` | Trivial low-risk change → direct edit + progress log, no spec (risk classifier redirects non-trivial changes to fix-spec/iterate-spec) |
+| `jr-worklist` | `/jr-worklist @doc \| next \| status` | QA document → tracked worklist in specs/worklists/, one-item-at-a-time gate, dev-context checkpoint, per-item routing (patch/fix/spec) |
 | `jr-exe-spec` | `/jr-exe-spec [--dev\|--no-dev]` | Approved spec → code (Implemented) |
 | `jr-verify-spec` | `/jr-verify-spec` | Implemented spec → coverage report (Verified) |
 

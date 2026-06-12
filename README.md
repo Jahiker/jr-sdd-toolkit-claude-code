@@ -24,6 +24,7 @@ From raw idea to verified code — a complete structured workflow for AI-assiste
 /jr-build-spec     →  Rough requirement → Polished spec. Accepts --dev.
 /jr-iterate-spec   →  Iterate an existing spec
 /jr-patch          →  Trivial low-risk change (color, copy, typo) — no spec, with risk classifier
+/jr-worklist       →  QA document → tracked worklist, worked one item at a time
 /jr-exe-spec       →  Approved spec → Working code. Accepts --dev.
 /jr-verify-spec    →  Code → Acceptance criteria coverage report
 
@@ -168,6 +169,7 @@ After installing, **restart Claude Code** to activate the skills.
 | jr-build-spec | `/jr-build-spec [--dev|--no-dev]` | Chat text **or** `@req.md` | `specs/feature.md` (Draft) or `specs/sketches/feature.md` (Sketch) |
 | jr-iterate-spec | `/jr-iterate-spec @specs/x.md` | Existing spec + change | Updated spec (new version) |
 | jr-patch | `/jr-patch [--dev|--no-dev]` | Trivial change request | Direct edit + progress log entry (no spec) |
+| jr-worklist | `/jr-worklist @doc \| next \| status` | QA doc / feedback list | `specs/worklists/x.md` + item-by-item execution |
 | jr-exe-spec | `/jr-exe-spec @specs/x.md [--dev|--no-dev]` | Approved spec | Code + spec → Implemented |
 | jr-verify-spec | `/jr-verify-spec @specs/x.md` | Implemented spec | Coverage report + spec → Verified |
 
@@ -189,7 +191,7 @@ Each slash command declares its preferred model via frontmatter to keep costs in
 | Skills | Model | Why |
 |---|---|---|
 | `/jr-status` · `/jr-progress` · `/jr-sync` · `/jr-init` | `haiku` | Mechanical / read-only — no creative reasoning needed |
-| `/jr-vision` · `/jr-arch` · `/jr-roadmap` · `/jr-build-spec` · `/jr-iterate-spec` · `/jr-patch` · `/jr-verify-spec` · `/jr-fix-spec` | `sonnet` | Reasoning-heavy but bounded |
+| `/jr-vision` · `/jr-arch` · `/jr-roadmap` · `/jr-build-spec` · `/jr-iterate-spec` · `/jr-patch` · `/jr-worklist` · `/jr-verify-spec` · `/jr-fix-spec` | `sonnet` | Reasoning-heavy but bounded |
 | `/jr-exe-spec` | `opus` | Code-writing with cascading technical decisions — don't skimp |
 
 Override per-invocation with `/model <name>` if needed. Each command also declares `tools:` (e.g. `/jr-status` only has `Read, Glob, Grep`) as defense-in-depth — preventing accidental writes or shell execution from skills that don't need them.
