@@ -44,7 +44,7 @@ The toolkit now has two operating modes:
 | Mode | Behavior | Best for |
 |---|---|---|
 | **`default`** | Fluid flow. Skills do their work without additional gates. | Prototypes, exploration, personal projects, quick experiments. |
-| **`dev`** | Critical modifier skills (`jr-build-spec`, `jr-exe-spec`) apply additional validations like a "code review by a second senior". | Serious projects where the cost of errors is high. |
+| **`dev`** | Modifier skills across the whole lifecycle (`jr-build-spec`, `jr-exe-spec`, `jr-verify-spec`, `jr-fix-spec`, `jr-iterate-spec`) apply additional validations like a "code review by a second senior". | Serious projects where the cost of errors is high. |
 
 ### Setting the mode
 
@@ -89,7 +89,13 @@ You can also override per-invocation:
 
 Vague answers (generic terms, less than X words, "git revert" when the spec touches DB) are rejected with concrete examples. Up to 2 reformulations, then explicit override (logged to History + progress).
 
-> Future phases: 1.9.0 will add `--dev` to `/jr-verify-spec` (E2E enforcement). 1.10.0 will extend it to `/jr-fix-spec` and `/jr-iterate-spec`.
+**`jr-verify-spec --dev`** (v1.11.0) — code-reading isn't enough: generates an executable E2E command per AC plus negative cases per FR, requires the dev to run them and sign off per AC, computes a Verification Quality score (≥85 + zero failed ACs to flip Verified), and persists the evidence in the spec for re-verification.
+
+**`jr-fix-spec --dev`** (v1.11.0) — scores the bug report quality (reproducibility, localization, expected vs actual, frequency, recent changes) before diagnosing; below 70 it asks targeted questions for the weak dimensions. Honest "I don't know" answers are recorded and release the gate.
+
+**`jr-iterate-spec --dev`** (v1.11.0) — the iteration must be justified before applying: origin (new requirement vs implementation discovery), impact on already-implemented FRs, and which ACs change. Vague answers get pushed back, same override mechanics as exe-spec gates.
+
+> With v1.11.0 the dev mode covers the full lifecycle: build → execute → verify → fix → iterate.
 
 ---
 

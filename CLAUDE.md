@@ -110,10 +110,13 @@ Two modes, persisted in `PROJECT.md` as `**Mode:** default` or `**Mode:** dev` i
 - **`jr-build-spec --dev`**: 6-dimension weighted readiness rubric (Clarity 15%, Testability 25%, Boundaries 10%, Deps 15%, Risks 15%, Architecture 20%). Score <60 → Sketch (blocks exe-spec --dev). 60–74 → Draft + Needs work flag (blocks exe-spec --dev). 75–89 → Draft. ≥90 → Excellent badge.
 - **`jr-exe-spec --dev`**: refuses Sketches and Needs work specs by default. Asks 3 pre-plan gates (files-to-touch / risk / rollback) and validates answers against the internal plan. Vague answers rejected (less than 10 words for risk, generic terms only, "git revert" insufficient when DB is touched). Up to 2 reformulations + explicit override (logged to History + progress.md).
 
-### Future phases
+### Dev mode coverage (complete as of v1.11.0)
 
-- **Phase 2 (v1.9.0)**: `--dev` in `jr-verify-spec` (executable E2E commands per AC, manual signoff, negative cases).
-- **Phase 3 (v1.10.0)**: `--dev` in `jr-fix-spec` (bug report quality scoring) and `jr-iterate-spec` (iteration justification scoring).
+- **`jr-build-spec --dev`** (v1.8.0): 6-dimension readiness rubric, sketches dir.
+- **`jr-exe-spec --dev`** (v1.8.0): 3 pre-execution gates (files-to-touch / risk / rollback).
+- **`jr-verify-spec --dev`** (v1.11.0): executable E2E command per AC + negative cases per FR, manual per-AC signoff ("reviewed by reading" not accepted), Verification Quality score (0.5·executed-pass + 0.3·negative-pass + 0.2·diff-review; ≥85 and zero fails → Verified), evidence persisted in spec as `## Verification Evidence`.
+- **`jr-fix-spec --dev`** (v1.11.0): bug report quality score (reproducibility 25%, localization 20%, expected-vs-actual 25%, frequency 10%, recent-changes 20%); <70 triggers targeted questions, honest unknowns release the gate; ⚠️ regression items need explicit dev confirmation.
+- **`jr-iterate-spec --dev`** (v1.11.0): 3-question iteration justification (origin, impact on implemented FRs, affected ACs) with push-back on vague answers and logged override.
 
 ## Design Principles for Skills
 

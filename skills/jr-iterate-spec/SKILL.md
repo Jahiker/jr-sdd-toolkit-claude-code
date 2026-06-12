@@ -1,15 +1,16 @@
 ---
 name: jr-iterate-spec
-description: Use when the user runs /jr-iterate-spec or wants to iterate/extend/modify an existing spec. Triggers: "iterate spec", "add to spec", "modify spec", "new version of spec", "extend feature", /jr-iterate-spec. Does NOT create a new spec — versions the existing one.
+description: Use when the user runs /jr-iterate-spec or wants to iterate/extend/modify an existing spec. Accepts --dev / --no-dev flag for iteration justification gating. Triggers: "iterate spec", "add to spec", "modify spec", "new version of spec", "extend feature", /jr-iterate-spec. Does NOT create a new spec — versions the existing one.
 ---
 
 # jr-iterate-spec
 
-Version an existing spec with new changes. Semantic versioning: patch (1.0→1.1) for small changes, minor (1.0→2.0) for structural changes.
+Version an existing spec with new changes. Semantic versioning: patch (1.0→1.1) for small changes, minor (1.0→2.0) for structural changes. In `--dev` mode, the iteration must be justified before it's applied — people iterate specs out of anxiety, not need.
 
 ## Rules
 - Respond to user in their conversation language.
-- Read `## Toolkit Context` from PROJECT.md at start.
+- Read `## Toolkit Context` from PROJECT.md at start → including **Mode**.
+- Mode resolution: `--dev`/`--no-dev` flag > PROJECT.md `Mode:` > `default`.
 - Requires TWO inputs: existing spec (@specs/name.md) + change description (text or .md). Ask if either missing.
 - Preserve the existing spec's language — do not change it.
 - Edit the existing spec file surgically — preserve all history.
@@ -36,6 +37,34 @@ Report to user: type detected, version change, FRs modified/added/removed, alrea
 
 **2. Check conflicts**
 Does change contradict existing FRs? Break already-implemented behavior? Have unmet dependencies? Is it so large it should be a new spec? Report issues in user's language. Respect user's decision.
+
+**2.5. Iteration justification gate (DEV MODE ONLY — skip if mode=default)**
+
+Before applying, the dev answers 3 questions (single block, wait for response):
+
+```
+🛡️  Iteration check (mode: --dev) — [spec] v[current] → v[next]
+
+1️⃣  Origen: ¿esta iteración nace de un requisito nuevo del negocio, o de algo
+   descubierto durante la implementación? (Si es lo segundo, ¿no debería ser
+   un fix en vez de una iteración?)
+
+2️⃣  Impacto en lo implementado: [if any modified FR is already Implemented/Verified]
+   FR-XX ya está implementado. ¿Qué pasa con el código existente que dependía
+   del comportamiento anterior?
+   [if nothing implemented is touched: auto-pass, state it]
+
+3️⃣  ACs afectados: ¿los ACs de los FRs modificados siguen siendo válidos o
+   hay que reescribirlos? Lista cuáles cambian.
+```
+
+Validation (same spirit as exe-spec gates):
+- Answer 1: "porque sí" / "el cliente lo pidió" without naming the requirement → push back once for the concrete driver.
+- Answer 2: vague ("no pasa nada") when implemented FRs ARE modified → push back with the specific FR and ask for the concrete compatibility story (migration, deprecation, both behaviors, etc.).
+- Answer 3: must name specific ACs or explicitly state "ninguno cambia" with a reason.
+- Up to 2 reformulations per question, then explicit `override iteration gate` — logged in History and progress.
+
+Record a condensed `Justification:` line inside the Delta section (step 4) with the three answers.
 
 **3. Ask questions if ambiguous** (in user's language)
 Same categories as jr-build-spec (🙋 client, 🛠️ dev). Only if needed for verifiable ACs.
@@ -64,6 +93,6 @@ Respond in user's language: delta summary, next steps (`/jr-exe-spec`, `/jr-veri
 
 Append entry to `docs/progress.md` (create with header if missing). Use today's date:
 ```
-## YYYY-MM-DD — jr-iterate-spec — [spec slug]
-Iterated to v[X.X]. Delta: [one-line summary]. Status: Draft.
+## YYYY-MM-DD — jr-iterate-spec[--dev] — [spec slug]
+Iterated to v[X.X]. Delta: [one-line summary]. Status: Draft. [Justified: origin one-line, if dev]
 ```
