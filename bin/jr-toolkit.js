@@ -22,6 +22,7 @@ const SKILLS = [
   'jr-fix-spec',
   'jr-status',
   'jr-sync',
+  'jr-drift',
   'jr-progress',
 ];
 
@@ -102,6 +103,7 @@ function install() {
     console.log('  ' + c('blue', '/jr-fix-spec') + '         → Diagnosticar y corregir bugs');
     console.log('  ' + c('blue', '/jr-status') + '           → Dashboard de specs');
     console.log('  ' + c('blue', '/jr-sync') + '             → Sincronizar PROJECT.md con el proyecto');
+    console.log('  ' + c('blue', '/jr-drift') + '            → Detectar divergencia specs ↔ código (read-only)');
     console.log('  ' + c('blue', '/jr-progress') + '         → Log narrativo de progreso (lectura + nota)');
     console.log('');
     console.log('  ' + c('yellow', 'Reinicia Claude Code para activar los skills.'));
@@ -236,6 +238,7 @@ function showHelp() {
   console.log('  /jr-fix-spec       Diagnosticar y corregir bugs');
   console.log('  /jr-status         Dashboard del estado de specs del proyecto');
   console.log('  /jr-sync           Sincronizar PROJECT.md con el estado real del proyecto');
+  console.log('  /jr-drift          Detectar divergencia entre specs y su código (read-only)');
   console.log('  /jr-progress       Log narrativo de progreso (lectura + notas manuales)');
   console.log('');
   console.log(c('bold', 'Más info:') + ' https://github.com/Jahiker/jr-sdd-toolkit-claude-code');

@@ -116,6 +116,12 @@ If this was a soft-warned change on `// spec:` code (spec drift), the log entry 
 [what changed]. ⚠️ Out-of-spec change to code from specs/[spec].md — spec NOT updated. Consider /jr-iterate-spec if behavior diverges.
 ```
 
+**Cross-reading (v1.12.0):** when the patched file carries a `// spec: [slug]` comment AND that spec is `Status: Verified`, also append a line to that spec's `## Post-verification changes` section (create the section right before History if absent). This is automatic — no confirmation — and is what `/jr-drift` reads to detect spec drift:
+```
+## Post-verification changes
+- YYYY-MM-DD — jr-patch — [file] ([what]) — spec not re-verified
+```
+
 **6. Confirm** (in user's language)
 Brief: what changed, where, and the progress entry added. No next-step ceremony — it's a patch, it's done.
 

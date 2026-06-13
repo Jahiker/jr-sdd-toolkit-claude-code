@@ -32,6 +32,7 @@ From raw idea to verified code — a complete structured workflow for AI-assiste
 /jr-fix-spec       →  Bug report → Diagnosed, fixed, documented
 /jr-status         →  Dashboard of all project specs
 /jr-sync           →  Detect and reconcile drift in PROJECT.md
+/jr-drift          →  Detect divergence between specs and their code (read-only)
 /jr-progress       →  Read or append narrative progress log
 ```
 
@@ -186,6 +187,7 @@ After installing, **restart Claude Code** to activate the skills.
 | jr-fix-spec | `/jr-fix-spec @specs/fixes/bug.md` | Bug report | Fix applied + docs updated |
 | jr-status | `/jr-status` | — | Dashboard of all specs |
 | jr-sync | `/jr-sync` | Project + PROJECT.md | Drift report + updated PROJECT.md |
+| jr-drift | `/jr-drift` | specs/ + code + git | Spec-to-code drift report (read-only) |
 | jr-progress | `/jr-progress [--note "..."]` | — | Recent log entries / appended note |
 
 ---
@@ -197,6 +199,7 @@ Each slash command declares its preferred model via frontmatter to keep costs in
 | Skills | Model | Why |
 |---|---|---|
 | `/jr-status` · `/jr-progress` · `/jr-sync` · `/jr-init` | `haiku` | Mechanical / read-only — no creative reasoning needed |
+| `/jr-drift` | `sonnet` | Read-only, but needs to reason about which drift matters |
 | `/jr-vision` · `/jr-arch` · `/jr-roadmap` · `/jr-build-spec` · `/jr-iterate-spec` · `/jr-patch` · `/jr-worklist` · `/jr-verify-spec` · `/jr-fix-spec` | `sonnet` | Reasoning-heavy but bounded |
 | `/jr-exe-spec` | `opus` | Code-writing with cascading technical decisions — don't skimp |
 

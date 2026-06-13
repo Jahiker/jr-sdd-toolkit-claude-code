@@ -22,6 +22,18 @@ Iteration is a delta operation, not a rebuild. Keep the context footprint minima
 - **Do not scan the codebase** during iteration. The spec's own Affected Files section tells you what's implemented; conflict checking (step 2) works from the spec content, not from reading source files. Only read a source file if the user explicitly asks whether the change breaks something specific.
 - **Multiple iterations in one session**: the spec is already in context from the first iteration — never re-read it for subsequent ones.
 
+## Drift awareness (cross-reading, v1.12.0)
+When reading the spec in step 0, check for a `## Post-verification changes` section (written automatically by jr-patch/jr-fix-spec when they touch Verified spec code). If present and non-empty, surface it before iterating:
+```
+🛡️ Before iterating [spec] v[X] → v[Y]:
+⚠️ This spec has N post-verification change(s) not reflected in the spec body
+   (from jr-patch / jr-fix-spec). Your iteration should incorporate them or the
+   spec stays out of sync.
+   [list the entries]
+   ¿Los reviso contigo antes de aplicar la iteración?
+```
+Wait for the user's decision. If they incorporate the changes, clear the resolved entries from `## Post-verification changes` as part of the iteration (they're now reflected in the spec body).
+
 ## Steps
 
 **0. Read base spec**

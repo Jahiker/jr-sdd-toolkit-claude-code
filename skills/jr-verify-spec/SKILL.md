@@ -45,6 +45,18 @@ Announce: "Auditing X acceptance criteria and Y NFRs across N files. [Mode: dev 
 **1. Walk the code (scoped)**
 Read only the files in `## Affected Files`, applying surgical reading. For each: find the traceability comment, identify which ACs the logic covers.
 
+**1.5. Scope check (cross-reading, v1.12.0)**
+Grep the codebase for `// spec: [this-spec-slug]` comments. Compare that set of files against the spec's `## Affected Files` list:
+- Files with the comment but NOT in Affected Files → potential scope creep or incomplete table. Report:
+```
+📐 Scope check:
+  ⚠️ N file(s) carry // spec: [slug] but aren't in Affected Files:
+    - [file]
+  → Spec table incomplete, or scope crept during implementation. Update Affected Files or review.
+```
+- Files in Affected Files but missing the comment → note as info (may be config/asset files that don't take comments).
+This is a lightweight metadata pass (grep only, no body reads beyond what step 1 already did). In `default` mode it's a one-line note; in `dev` mode discrepancies are surfaced prominently as part of the quality picture.
+
 **2. Evaluate each AC (code-level)**
 
 | Status | Meaning |

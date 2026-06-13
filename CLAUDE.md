@@ -41,6 +41,7 @@ Commands declare their preferred model in `command.md` frontmatter. Claude Code 
 | Tier | Model | Skills |
 |---|---|---|
 | Mechanical / read-only | `haiku` | jr-status, jr-progress, jr-sync, jr-init |
+| Read-only analysis | `sonnet` | jr-drift (reasons about which drift matters) |
 | Reasoning | `sonnet` | jr-vision, jr-arch, jr-roadmap, jr-build-spec, jr-iterate-spec, jr-patch, jr-worklist, jr-verify-spec, jr-fix-spec |
 | Code-writing critical | `opus` | jr-exe-spec |
 
@@ -73,6 +74,7 @@ Users can override per-invocation with `/model <name>` if needed. Tool restricti
 | `jr-fix-spec` | `/jr-fix-spec` | Bug report `.md` → fix applied + hotfix in original spec |
 | `jr-status` | `/jr-status` | — → dashboard of all specs |
 | `jr-sync` | `/jr-sync` | Existing project + `PROJECT.md` → drift report + updated `PROJECT.md` |
+| `jr-drift` | `/jr-drift` | specs/ + traceability comments + git → spec-to-code drift report (READ-ONLY, never modifies) |
 | `jr-progress` | `/jr-progress` | — (or `--note "..."`) → recent log entries / appended note |
 
 ### Spec Lifecycle

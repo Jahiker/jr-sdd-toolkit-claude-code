@@ -16,6 +16,8 @@ Scan all specs in specs/, classify by status, generate an actionable dashboard. 
 
 For each .md in specs/ (main dir + sketches/ + fixes/, each scanned separately), read: Status, Version, Date, Related specs, title, Pending Questions section ([PENDING] items?), Delta section, Affected Files count, last History entry. For sketches, also read the `Readiness Report` block if present (overall score).
 
+**Lightweight drift signal:** while reading each spec, cheaply check for a `## Post-verification changes` section — its presence on a Verified spec means 🟠 spec drift. Count these for the Drift summary line. Do NOT do the full drift analysis here (that's `/jr-drift`'s job — it greps the codebase and checks git). The status drift line is just a count from what's already being read; if nothing obvious, omit the line.
+
 **Status classification:**
 | Label | Criterion |
 |---|---|
@@ -35,6 +37,7 @@ For each .md in specs/ (main dir + sketches/ + fixes/, each scanned separately),
 [Date] | Total specs: N | Mode: [default|dev]
 
 Summary: ✅ N | 🔵 N | 🟡 N | 🟠 N | ⏳ N | 📝 N | 🔴 N | ⚠️ N
+Drift: 🔴 N · 🟠 N · 🟡 N — run /jr-drift for detail (omit line if no quick signal)
 
 --- Specs by status ---
 

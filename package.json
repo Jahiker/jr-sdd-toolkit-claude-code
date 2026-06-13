@@ -1,7 +1,7 @@
 {
   "name": "@jahiker/claude-toolkit",
-  "version": "1.11.0",
-  "description": "Spec-Driven Development toolkit for Claude Code — transform rough requirements into professional specs, implement them, verify coverage, and keep continuity across sessions. Full dev mode across the lifecycle, fast path for trivial changes, and QA worklist orchestration.",
+  "version": "1.12.0",
+  "description": "Spec-Driven Development toolkit for Claude Code — specs, implementation, verification, session continuity, full dev mode, fast path for trivial changes, QA worklist orchestration, and spec-to-code drift detection.",
   "keywords": [
     "claude",
     "claude-code",

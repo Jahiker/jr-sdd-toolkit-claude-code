@@ -100,6 +100,11 @@ In `dev` mode, regression items marked ⚠️ require the dev's explicit "regres
 - Add edge case as new AC in affected FR: `- [ ] AC-XX: [description] *(added in hotfix YYYY-MM-DD)*`
 - Add History entry: `| [v] | date | Hotfix | jr-fix-spec — [one-line] |`
 - Do NOT change spec Status or version.
+- **Cross-reading (v1.12.0):** if the spec is `Status: Verified`, also append to its `## Post-verification changes` section (create before History if absent) — automatic, no confirmation. This is what `/jr-drift` reads:
+  ```
+  ## Post-verification changes
+  - YYYY-MM-DD — jr-fix-spec — [file] (bug [id]) — AC-XX affected, hotfix applied
+  ```
 
 **If no related spec:**
 Update specs/fixes/bug-name.md (in Docs language):
